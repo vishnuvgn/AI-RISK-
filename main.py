@@ -10,6 +10,10 @@
 import math, copy, random
 
 import worldMap
+from cmuHelperFns import *
+from drawingFunctions import *
+
+# whats the diff btw import and from...import
 
 from cmu_112_graphics import *
 
@@ -40,6 +44,7 @@ class Player(object):
         self.territories = [] # list of territories under Player control
         self.troopPlaceCount = None # how many troops Player gets to place on the map at the start of their turn
         self.controlContinent = False
+        self.color = None
 
     # methods for recieving (placing) troops, attacking, defending, manuevering
         
@@ -50,28 +55,75 @@ class Card(object):
 
 def appStarted(app):
     app.map = app.loadImage('riskmap.jpeg')
-
+    app.map = app.scaleImage(app.map, 1)
+    app.rows = 100
+    app.cols = 100
     # code to get size of image
     # https://newbedev.com/python-get-width-and-height-of-image-tkinter-code-example
-    img = Image.open('riskmap.jpeg')
-    mapPic = ImageTk.PhotoImage(img)
+
+    # img = Image.open('riskmap.jpeg')
+    # mapPic = ImageTk.PhotoImage(img)
+    # app.mapHeight = mapPic.height()
+    # app.mapWidth = mapPic.width()
+    
+    mapPic = ImageTk.PhotoImage(app.map)
     app.mapHeight = mapPic.height()
     app.mapWidth = mapPic.width()
-    
-def gameDimensions():
-    pass
 
 def redrawAll(app, canvas):
     drawMap(app, canvas)
-    drawSideBar(app, canvas)
+    drawStepsAndStats(app, canvas)
+    # drawGrid(app, canvas)
 
 def drawMap(app, canvas):
     canvas.create_image(app.mapWidth/2, app.mapHeight/2, image=ImageTk.PhotoImage(app.map))
+    drawAllCircles(app, canvas)
 
-def drawSideBar(app, canvas):
-    canvas.create_rectangle(app.mapWidth + 10, 10, app.width - 10, app.mapHeight, outline="black", fill="black")
-    canvas.create_text((app.width - 10 + (app.mapWidth + 10) )/2,
-                        (app.mapHeight - 10)/2, text="hello", fill="white")
+####################################################
+
+# the sidebar and the bottom bar
+def drawStepsAndStats(app, canvas):
+    drawSideBar(app, canvas)
+    drawBottomBar(app, canvas)
+
+####################################################
+
+
+# if fill color not given, that means it should be transparent b/c the circle is within a country
+def drawCircle(app, canvas, row, col, fillColor=""): 
+    (x0, y0, x1, y1) = getCellBounds(app, row, col)
+    r = 15 # radius of circle is 15
+    canvas.create_oval(x0-r, y0-r, x1+r, y1+r, fill=fillColor)
+
+def drawAllCircles(app, canvas):
+    color = "white"
+    # NORTH AMERICA
+    drawCircle(app, canvas, 3, 2,color) # Alaska
+    drawCircle(app, canvas, 4, 10,color) # Northwest Territory
+    drawCircle(app, canvas, 19, 4,color) # Alberta
+    drawCircle(app, canvas, 26, 4,color) # Western United States
+    drawCircle(app, canvas, 36, 6,color) # Central America
+    drawCircle(app, canvas, 29, 17,color) # Eastern United States
+    drawCircle(app, canvas, 3, 21,color) # Greenland
+    drawCircle(app, canvas, 13, 14,color) # Ontario
+    drawCircle(app, canvas, 17, 21,color) # Quebec
+
+    drawCircle(app, canvas, 35, 16,color) # Venezuela
+    drawCircle(app, canvas, 45, 8,color) # Peru
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+    # drawCircle(app, canvas, 3, 2,"white") # Alaska
+
+
+
+def mousePressed(app, event):
+    print(getCell(app, event.x, event.y))
+
 
 def main():
     runApp(width=1280, height=755)

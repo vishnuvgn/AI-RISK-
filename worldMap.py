@@ -1,8 +1,8 @@
 class Territory(object):
     def __init__(self, name):
-        self.name = name
+        self.name = name # region name
         self.occupied = False # if the region is occupied
-        self.troopColor = None # who occupies the region (the conquistador / conquistadora - yay apush)
+        self.troopGeneral = None # who occupies the region 
         self.troopCount = 0 # how many troops occupy the region
 
 # NORTH AMERICA
