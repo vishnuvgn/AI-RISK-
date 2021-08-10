@@ -3,6 +3,7 @@ def drawSideBar(app, canvas):
     canvas.create_rectangle(app.mapWidth + 10, 10, app.width - 10,
                             app.height-10, outline="black")
     drawStep1(app, canvas)
+    drawStep2(app, canvas)
 
 def drawBottomBar(app, canvas):
     canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth-10,
@@ -16,15 +17,16 @@ def drawStep1(app,canvas):
     sideBarx0, sideBary0, sideBarx1, sideBary1 = app.mapWidth + 10, 10, app.width - 10, app.height-10
     sideBarHeight = sideBary1 - sideBary0
     sideBarWidth = sideBarx1 - sideBarx0
-    step1Height = sideBarHeight / 5 # divides 
+    step1Height = sideBarHeight / 5 # divides into 5 rows
     # draws the box for step1
-    canvas.create_rectangle(sideBarx0, sideBary0, sideBarx1, sideBary0 + step1Height)
-
+    canvas.create_rectangle(sideBarx0, sideBary0, sideBarx1,
+                            sideBary0 + step1Height)
     canvas.create_text((sideBarx1 + sideBarx0)/2, sideBary0+10,
-                       text="Place Troops")
+                        text="Place Troops")
 
-    troopsAtATime = 1
-    troopsLeft = 5
+    troopsAtATime = 1 # static for now, remember to change
+    troopsLeft = 5 # static for now, remember to change
+
     # app, canvas, troopNumber,
     # top left of sidebar, height of step1box, width of step1box (same as sidebar),
     # row, col (row, col of rectangle),
@@ -41,10 +43,10 @@ def drawStep1(app,canvas):
 
 # used to draw both how many troops left and how many troops placed at a time
 # draws one rectangle at row, col with troop info in center (the number)
-def drawTroopsBox(app, canvas, troopCount, step1x0,step1y0,
+def drawTroopsBox(app, canvas, troopCount, sideBarx0,sideBary0,
                             step1Height,step1Width,row,col, message):
-    x0 = (col*step1Width/5) + step1x0
-    y0 = (row*step1Height/5) + step1y0
+    x0 = (col*step1Width/5) + sideBarx0
+    y0 = (row*step1Height/5) + sideBary0
     x1 = x0 + (step1Width/5)
     y1 = y0 + (step1Height/5)
     countBoxHeight = y1-y0
@@ -56,3 +58,84 @@ def drawTroopsBox(app, canvas, troopCount, step1x0,step1y0,
                         text=message)
 
 ####################################################
+
+# SECOND STEP DRAWING STUFF
+####################################################
+# draws the box for step 2
+def drawStep2(app, canvas):
+    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+                                                  app.width - 10, app.height-10)
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+    topOfStep2Box = sideBarHeight / 5 
+
+    # step2x0, step2y0, step2x1, step2y1 top left and bottom right points 
+    # of the step2 box
+    step2x0 = sideBarx0
+    step2y0 = topOfStep2Box + 10
+    step2x1 = sideBarx1
+    step2y1 = sideBary1
+
+    canvas.create_rectangle(step2x0,step2y0,step2x1,step2y1)
+    canvas.create_text((step2x0 + step2x1)/2, step2y0+10,
+                         text="Attack")
+    drawSkipButton(app, canvas)
+    drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1)
+
+# if skipbutton is clicked, then remember to change boolean app.step2Now
+def drawSkipButton(app, canvas):
+    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+                                                  app.width - 10, app.height-10)
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+
+    skipButtonHeigth = 20
+
+    x0 = (4*sideBarWidth/5) + sideBarx0
+    y0 = (1*sideBarHeight/5) + sideBary0
+    x1 = x0 + (sideBarWidth/5)
+    y1 = y0 + skipButtonHeigth
+
+    canvas.create_rectangle(x0,y0,x1,y1)
+    canvas.create_text((x1+x0)/2, (y1+y0)/2, text="SKIP")
+
+# step2x0, step2y0, step2x1, step2y1 top left and bottom right points 
+# of the step2 box
+def drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1):
+    
+    step2BoxHeight = step2y1 - step2y0 # height of step2 box
+    step2BoxWidth = step2x1 - step2x0 # width of step2 box / same sidebar width
+
+    x0From = step2x0
+    y0From = (step2BoxHeight/10) + step2y0
+    x1From = x0From + (step2BoxWidth/2)
+    y1From = y0From + (step2BoxHeight/10)
+    
+
+    if(app.isFrom == True and app.isTo == False): # if 'f' key has been pressed
+        fromWidth = 3
+        toWidth = 1
+    elif(app.isTo == True and app.isFrom == False): # if 't' key has been pressed
+        toWidth = 3
+        fromWidth = 1
+    else:                   # if neither key has been pressed
+        fromWidth = 1
+        toWidth = 1
+    
+    fromText = f'FROM: {app.fromRegion} '
+    toText = f'TO: {app.toRegion}' 
+
+
+    canvas.create_rectangle(x0From, y0From, x1From, y1From, width=fromWidth)
+    canvas.create_text((x1From+x0From)/2,(y1From+y0From)/2,
+                        text=fromText)
+
+    x0To = step2x1 - (step2BoxWidth/2)
+    y0To = (step2BoxHeight/10) + step2y0
+    x1To = step2x1
+    y1To = y0From + (step2BoxHeight/10)
+
+    
+    canvas.create_rectangle(x0To, y0To, x1To, y1To, width=toWidth)
+    canvas.create_text((x1To+x0To)/2,(y1To+y0To)/2,
+                        text=toText)
