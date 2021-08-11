@@ -104,7 +104,9 @@ def drawStep2(app, canvas):
     drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1)
     drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1)
     drawRollButton(app,canvas)
-    
+    drawDice(app,canvas)
+    drawBattleResults(app, canvas)
+
 # if skipbutton is clicked, then remember to change boolean app.step2Now
 def drawSkipButton(app, canvas):
     sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
@@ -240,9 +242,106 @@ def drawRollButton(app, canvas):
 
     step2Height = step2y1 - step2y0
 
-    x0 = step2x0 + (sideBarWidth / 3)
-    y0 = 3*step2Height/5
-    x1 = x0 + (sideBarWidth / 3)
-    y1 = y0 + 15
+    x0 = sideBarx0 + (2*sideBarWidth / 5)
+    y0 = (3*step2Height/5)
+    x1 = x0 + (sideBarWidth / 5) 
+    y1 = y0 + 30
 
     canvas.create_rectangle(x0,y0,x1,y1)
+    canvas.create_text((x0+x1)/2, (y0+y1)/2, text="ROLL")
+    
+# fn that draws the dice and takes in the 
+# attackingDice list and the defendingDice list    
+def drawDice(app, canvas):
+    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+                                                  app.width - 10, app.height-10)
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+    topOfStep2Box = sideBarHeight / 5 
+    
+    step2x0 = sideBarx0
+    step2y0 = topOfStep2Box + 10
+    step2x1 = sideBarx1
+    step2y1 = sideBary1
+
+    step2Height = step2y1 - step2y0
+
+    A_x0 = sideBarx0 + (sideBarWidth / 7)
+    A_y0 = (3*step2Height/5) + 30
+    A_x1 = A_x0 + (sideBarWidth / 7) 
+    A_y1 = A_y0 + 30
+
+    canvas.create_text((A_x1+A_x0)/2, (A_y0+A_y1)/2, text="ATTACKER")
+
+    D_x0 = sideBarx0 + (5*sideBarWidth / 7)
+    D_y0 = (3*step2Height/5) + 30
+    D_x1 = D_x0 + (sideBarWidth / 7) 
+    D_y1 = D_y0 + 30
+
+    canvas.create_text((D_x1+D_x0)/2, (D_y0+D_y1)/2, text="DEFENDER")
+
+    diceLength = 50 # dice height and width is 25
+
+    attackDice_x0 = sideBarx0 + (sideBarWidth / 7) + 7.5
+    attackDice_y0 = (3*step2Height/5) + 30
+    attackDice_x1 = attackDice_x0 + diceLength 
+    attackDice_y1 = attackDice_y0 + diceLength
+
+    defenceDice_x0 = sideBarx0 + (5*sideBarWidth / 7) + 7.5
+    defenceDice_y0 = (3*step2Height/5) + 30
+    defenceDice_x1 = defenceDice_x0 + diceLength 
+    defenceDice_y1 = defenceDice_y0 + diceLength
+
+
+    for i in range(app.attackingTroopCount):
+        attackDice_y0 += diceLength
+        attackDice_y1 = attackDice_y0 + diceLength
+        canvas.create_rectangle(attackDice_x0, attackDice_y0,
+                                attackDice_x1, attackDice_y1)
+        canvas.create_text((attackDice_x0+attackDice_x1)/2,
+                           (attackDice_y1+attackDice_y0)/2,
+                           text=f'{app.attackingDice[i]}')
+
+    for i in range(app.defendingTroopCount):
+        defenceDice_y0 += diceLength
+        defenceDice_y1 = defenceDice_y0 + diceLength        
+        canvas.create_rectangle(defenceDice_x0, defenceDice_y0,
+                                defenceDice_x1, defenceDice_y1)                                
+        canvas.create_text((defenceDice_x0+defenceDice_x1)/2,
+                           (defenceDice_y0+defenceDice_y1)/2,
+                           text=f'{app.defendingDice[i]}')
+
+
+def drawBattleResults(app, canvas):
+    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+                                                  app.width - 10, app.height-10)
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+    topOfStep2Box = sideBarHeight / 5 
+    
+    step2x0 = sideBarx0
+    step2y0 = topOfStep2Box + 10
+    step2x1 = sideBarx1
+    step2y1 = sideBary1
+
+    step2Height = step2y1 - step2y0
+    
+    x0 = step2x0 + 20
+    y0 = step2y1 - 140
+    x1 = step2x1 - 20
+    y1 = step2y1 - 20
+
+    canvas.create_rectangle(x0,y0,x1,y1)
+
+
+    attackerMessage = f'{app.diedAttacking} troops died while attacking'
+    defenderMessage = f'{app.diedDefending} troops died while defending'
+    
+    font = f"Arial 24 bold"
+    canvas.create_text((x0+x1)/2, (y0+y1)/2,
+                        text=attackerMessage, anchor="s", font=font)
+    canvas.create_text((x0+x1)/2, (y0+y1)/2,
+                        text=defenderMessage, anchor="n", font=font)
+
+
+

@@ -6,14 +6,13 @@
 #
 #################################################
 
-# import cs112_n21_week4_linter
 import math, copy, random
 
 from worldMap import *
 from cmuHelperFns import *
 from drawingFunctions import *
+from diceRoll import *
 
-# whats the diff btw import and from...import
 
 from cmu_112_graphics import *
 
@@ -71,6 +70,16 @@ def appStarted(app):
     app.isTo = False
     app.fromRegion = ''
     app.toRegion = ''
+
+    app.attackingTroopCount = 3 # static for now, will change later
+    app.defendingTroopCount = 2 # static for now, will change later
+
+    app.attackingDice = [None, None, None]
+    app.defendingDice = [None, None, None]
+
+    app.diedAttacking = 0 # change into player later?
+    app.diedDefending = 0 # change into player later?
+
     # code to get size of image
     # https://newbedev.com/python-get-width-and-height-of-image-tkinter-code-example
 
@@ -184,6 +193,9 @@ def mousePressed(app, event):
             # region.troopGeneral = player1 (whatever)
         
 
+
+    # if ROLL clicked (and on step2 of game), then call rollDice fn
+
 # distance formula to ckeck if clicked in circle
 def clickedInCircle(app, cx, cy, x, y):
     dist = ((x - cx)**2 + (y - cy)**2)**0.5
@@ -204,6 +216,9 @@ def keyPressed(app, event):
         app.fromRegion = ''
         app.toRegion = ''
 
+    elif(event.key == 'Space'):
+        (app.attackingDice, app.defendingDice,
+         app.diedAttacking, app.diedDefending) = rollDice(app.attackingTroopCount, app.defendingTroopCount)
 
 
 
