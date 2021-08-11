@@ -175,6 +175,11 @@ def mousePressed(app, event):
                         ifNeighbors = checkIfNeighbors(app.fromRegion,app.toRegion)
                         if(not ifNeighbors):
                             app.toRegion = 'Not a Neighbor'
+
+            #remember to add two conditons to the fromRegion toRegion code above
+            # 1) toRegion cannot be a region that the current player occupies
+            # 2) fromRegion must have AT LEAST two troops
+
             # region.occupied = True
             # region.troopGeneral = player1 (whatever)
         
