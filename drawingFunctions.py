@@ -6,10 +6,13 @@ def drawSideBar(app, canvas):
         drawSetup(app, canvas)
     elif(app.step1Now == True):
         drawStep1(app, canvas)
+    elif(app.step2Now == True):
+        drawStep1(app, canvas)
+        drawStep2(app, canvas)
     else:
         drawStep1(app, canvas)
         drawStep2(app, canvas)
-
+        drawStep3(app, canvas)
 def drawBottomBar(app, canvas):
     canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth-10,
                             app.height-10, outline="black")
@@ -154,30 +157,30 @@ def drawStep2(app, canvas):
 
     canvas.create_rectangle(step2x0,step2y0,step2x1,step2y1, width=2)
     canvas.create_text((step2x0 + step2x1)/2, step2y0+10,
-                         text="Attack")
-    drawSkipButton(app, canvas)
+                         text="ATTACK")
+    # drawSkipButton(app, canvas)
     drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1)
     drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1)
     drawRollButton(app,canvas)
     drawDice(app,canvas)
     drawBattleResults(app, canvas)
 
-# if skipbutton is clicked, then remember to change boolean app.step2Now
-def drawSkipButton(app, canvas):
-    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
-                                                  app.width - 10, app.height-10)
-    sideBarHeight = sideBary1 - sideBary0
-    sideBarWidth = sideBarx1 - sideBarx0
+# # if skipbutton is clicked, then remember to change boolean app.step2Now
+# def drawSkipButton(app, canvas):
+#     sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+#                                                   app.width - 10, app.height-10)
+#     sideBarHeight = sideBary1 - sideBary0
+#     sideBarWidth = sideBarx1 - sideBarx0
 
-    skipButtonHeigth = 20
+#     skipButtonHeigth = 20
 
-    x0 = (4*sideBarWidth/5) + sideBarx0
-    y0 = (1*sideBarHeight/5) + sideBary0
-    x1 = x0 + (sideBarWidth/5)
-    y1 = y0 + skipButtonHeigth
+#     x0 = (4*sideBarWidth/5) + sideBarx0
+#     y0 = (1*sideBarHeight/5) + sideBary0
+#     x1 = x0 + (sideBarWidth/5)
+#     y1 = y0 + skipButtonHeigth
 
-    canvas.create_rectangle(x0,y0,x1,y1)
-    canvas.create_text((x1+x0)/2, (y1+y0)/2, text="SKIP")
+#     canvas.create_rectangle(x0,y0,x1,y1)
+#     canvas.create_text((x1+x0)/2, (y1+y0)/2, text="SKIP")
 
 
 # step2x0, step2y0, step2x1, step2y1 top left and bottom right points 
@@ -234,7 +237,8 @@ def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
     x1Attacking = x0Attacking + (step2BoxWidth/2)
     y1Attacking = y0Attacking + (step2BoxHeight/10)
 
-    canvas.create_rectangle(x0Attacking, y0Attacking, x1Attacking, y1Attacking)
+    canvas.create_rectangle(x0Attacking, y0Attacking, x1Attacking, y1Attacking,
+                            width=app.width_A)
     
     attackingTroopMessage = "Attacking Troops:" 
     # text for attacking troops
@@ -247,7 +251,8 @@ def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
     x1Defending = step2x1
     y1Defending = y0Defending + (step2BoxHeight/10)
 
-    canvas.create_rectangle(x0Defending, y0Defending, x1Defending, y1Defending)
+    canvas.create_rectangle(x0Defending, y0Defending, x1Defending, y1Defending,
+                            width=app.width_D)
 
     defendingTroopMessage = "Defending Troops:" 
     # text for defending troops
@@ -400,4 +405,54 @@ def drawBattleResults(app, canvas):
                         text=defenderMessage, anchor="n", font=font)
 
 
+####################################################
+
+# THIRD STEP DRAWING STUFF
+####################################################
+
+
+def drawStep3(app, canvas):
+    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+                                                  app.width - 10, app.height-10)
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+    topOfStep3Box = sideBarHeight / 5 
+
+    # step2x0, step2y0, step2x1, step2y1 top left and bottom right points 
+    # of the step2 box
+    step3x0 = sideBarx0
+    step3y0 = topOfStep3Box + 10
+    step3x1 = sideBarx1
+    step3y1 = sideBary1
+
+    canvas.create_rectangle(step3x0,step3y0,step3x1,step3y1, width=2)
+    canvas.create_text((step3x0 + step3x1)/2, step3y0+10,
+                         text="MANUEVER")
+
+    drawFromTo(app, canvas, step3x0, step3y0, step3x1, step3y1)
+    drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1)
+
+def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
+        
+    step3BoxHeight = step3y1 - step3y0 # height of step2 box
+    step3BoxWidth = step3x1 - step3x0 # width of step2 box / same sidebar width
+
+    x0Attacking = step3x0
+    y0Attacking = (2*step3BoxHeight/10) + step3y0 + 5
+    x1Attacking = step2BoxWidth
+    y1Attacking = y0Attacking + (step2BoxHeight/10)
+
+    canvas.create_rectangle(x0Attacking, y0Attacking, x1Attacking, y1Attacking,
+                            width=app.width_A)
+    
+    attackingTroopMessage = "Attacking Troops:" 
+    # text for attacking troops
+    canvas.create_text((x1Attacking+x0Attacking)/2, (y1Attacking+y0Attacking)/2,
+                        text=attackingTroopMessage)
+
+
+
+    attackingTroopNum = app.attackingTroopCount
+    drawTroopCountSquare(app, canvas, x0Attacking, y0Attacking,
+                         x1Attacking, y1Attacking,attackingTroopNum)
 

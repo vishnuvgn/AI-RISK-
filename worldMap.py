@@ -41,7 +41,7 @@ Madagascar = Territory("Madagascar")
 Western_Europe = Territory("Western_Europe")
 Great_Britain = Territory("Great_Britain")
 Iceland = Territory("Iceland")
-Scandanavia = Territory("Scandanavia")
+Scandinavia = Territory("Scandinavia")
 Ukraine = Territory("Ukraine")
 Northern_Europe = Territory("Northern_Europe")
 Southern_Europe = Territory("Southern_Europe")
@@ -97,11 +97,11 @@ worldMap = {
 
     # EUROPE
     "Western_Europe" : {Great_Britain, Northern_Europe, Southern_Europe, North_Africa},
-    "Great_Britain" : {Western_Europe, Iceland, Scandanavia, Northern_Europe},
-    "Iceland" : {Greenland, Great_Britain, Scandanavia},
-    "Scandanavia" : {Iceland, Great_Britain, Northern_Europe, Ukraine},
-    "Ukraine" : {Scandanavia, Ural, Afghanistan, Middle_East, Northern_Europe, Southern_Europe},
-    "Northern_Europe" : {Great_Britain, Scandanavia, Ukraine, Southern_Europe, Western_Europe},
+    "Great_Britain" : {Western_Europe, Iceland, Scandinavia, Northern_Europe},
+    "Iceland" : {Greenland, Great_Britain, Scandinavia},
+    "Scandinavia" : {Iceland, Great_Britain, Northern_Europe, Ukraine},
+    "Ukraine" : {Scandinavia, Ural, Afghanistan, Middle_East, Northern_Europe, Southern_Europe},
+    "Northern_Europe" : {Great_Britain, Scandinavia, Ukraine, Southern_Europe, Western_Europe},
     "Southern_Europe" : {Western_Europe, Northern_Europe, Ukraine, Middle_East, Egypt, North_Africa},
 
     # ASIA

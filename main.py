@@ -12,6 +12,7 @@ from worldMap import *
 from cmuHelperFns import *
 from drawingFunctions import *
 from diceRoll import *
+from mousePressed import *
 
 
 from cmu_112_graphics import *
@@ -99,12 +100,14 @@ def appStarted(app):
     app.currentIndex = 0
     app.currentPlayer = app.turns[app.currentIndex]
 
-    app.setup = True    # if game hasn't officially began (setup stage)
+    app.setup = True # should be True, if game hasn't officially began (setup stage)
     app.step1Now = False # if player on step1 or not
     app.step2Now = False # if player on step2 or not
     app.step3Now = False # if player on step3 or not
-    
-    app.selectedRegionName = None
+
+    #############################
+    app.selectedRegionName = ''
+    app.selectedRegionObject = None
 
     app.isFrom = False # used to toggle between FROM and TO
     app.isTo = False # used to toggle between FROM and TO
@@ -115,6 +118,23 @@ def appStarted(app):
     app.fromRegionObject = None # used to access the troopCount in each territory
     app.toRegionObject = None # --^
 
+
+    app.isFromLegal = False
+    app.isToLegal = False
+
+    app.substate_settingRegions = True
+    app.substate_setting_D_Troops = False # setting defending troops
+    app.substate_setting_A_Troops = False # setting attacking troops
+    app.substate_rolling = False
+
+    app.width_A = 1 # width of attacking box (the count box)
+    app.width_D = 1 # width of defending box (the count box)
+
+    app.rolledCount = 0
+
+
+    #############################
+
     app.attackingTroopCount = 1 # static for now, will change later
     app.defendingTroopCount = 1 # static for now, will change later
 
@@ -123,6 +143,12 @@ def appStarted(app):
 
     app.diedAttacking = 0 # change into player later?
     app.diedDefending = 0 # change into player later?
+
+    # bottome right corner of map
+    app.mapBottomY = 538
+    app.mapRightX = 806
+
+
 
     # code to get size of image
     # https://newbedev.com/python-get-width-and-height-of-image-tkinter-code-example
@@ -198,7 +224,7 @@ def drawAllCircles(app, canvas):
     Western_Europe.circleCoordinates = drawCircle(app, canvas, 35, 22, Western_Europe, Western_Europe.color) # Western_Europe
     Great_Britain.circleCoordinates = drawCircle(app, canvas, 26, 21, Great_Britain, Great_Britain.color) # Great_Britain
     Iceland.circleCoordinates = drawCircle(app, canvas, 9, 26, Iceland, Iceland.color) # Iceland
-    Scandanavia.circleCoordinates = drawCircle(app, canvas, 5, 32, Scandanavia, Scandanavia.color) # Scandanavia
+    Scandinavia.circleCoordinates = drawCircle(app, canvas, 5, 32, Scandinavia, Scandinavia.color) # Scandinavia
     Ukraine.circleCoordinates = drawCircle(app, canvas, 13, 38, Ukraine, Ukraine.color) # Ukraine
     Northern_Europe.circleCoordinates = drawCircle(app, canvas, 19, 31, Northern_Europe, Northern_Europe.color) # Northern_Europe
     Southern_Europe.circleCoordinates = drawCircle(app, canvas, 33, 30, Southern_Europe, Southern_Europe.color) # Southern_Europe
@@ -224,7 +250,7 @@ def drawAllCircles(app, canvas):
     Eastern_Australia.circleCoordinates = drawCircle(app, canvas, 64, 60, Eastern_Australia, Eastern_Australia.color) # Eastern_Australia
 
 
-
+'''
 def mousePressed(app, event):
     # print("(row,col):", getCell(app, event.x, event.y))
     # print("event.x = ", event.x)
@@ -310,78 +336,165 @@ def mousePressed(app, event):
 
 
     # if ROLL clicked (and on step2 of game), then call rollDice fn
+'''
 
+'''
 def checkRegionsOccupied():
     for region in regionsSet:
         if(region.occupied == False):
             return False
-    return True
+    return True'''
 
-# distance formula to ckeck if clicked in circle
+'''# distance formula to ckeck if clicked in circle
 def clickedInCircle(app, cx, cy, x, y):
     dist = ((x - cx)**2 + (y - cy)**2)**0.5
     if(dist <= app.circleRadius + 3): # give a little leeway 
         return True
     return False
-
+'''
 def keyPressed(app, event):
     if(app.step2Now == True):
-        if (event.key == 'f'):
+        if (event.key == 'f' and app.substate_settingRegions == True):
             app.isFrom = True
             app.isTo = False
 
-        elif (event.key == 't'):
+        elif (event.key == 't' and app.isFromLegal == True 
+                and app.substate_settingRegions == True):
             app.isFrom = False
             app.isTo = True
         
-        elif (event.key == 'r'):
+        elif (event.key == 'r'): # refresh
+            app.substate_settingRegions = True
+            app.substate_setting_A_Troops = False
+            app.substate_setting_D_Troops = False
+            app.substate_rolling = False
+            
             app.fromRegionString = ''
             app.toRegionString = ''
+            app.toRegionObject = None
+            app.fromRegionObject = None
+            app.isFromLegal = False
+            app.isToLegal = False
 
-        elif(event.key == 'a'):
-        #  and 
-        #     app.fromRegionString != '' and # <-- fix this
-        #     app.toRegionString != ''): # <----^
+            app.width_A = 1
+            app.width_D = 1
+        
+            app.attackingTroopCount = 1
+            app.defendingTroopCount = 1
+
+            app.attackingDice = [None, None, None]
+            app.defendingDice = [None, None]
+
+            app.rolledCount = 0
+
+        ###########################
+        # makes sure that from and to regions are legal
+        elif(event.key == 'a' and 
+             app.isFromLegal == True and 
+             app.isToLegal == True):
+            app.width_A = 3
+            app.width_D = 1
+
+            app.isFrom = False
+            app.isTo = False
+            #both are false b/c you are no longer setting the regions
+
+            # print(f"app.substate_setting_A_Troops = {app.substate_setting_A_Troops}")
             
-            # app.A_width = 3
+            # setting substates to setting troop count
 
+            app.substate_settingRegions = False
+            app.substate_setting_A_Troops = True
+            app.substate_setting_D_Troops = False
+            app.substate_rolling = False
+
+
+                # makes sure that from and to regions are legal
+        elif(event.key == 'd' and 
+             app.isFromLegal == True and 
+             app.isToLegal == True and 
+             app.substate_setting_A_Troops == True):
+            app.width_A = 1
+            app.width_D = 3
+
+            app.isFrom = False
+            app.isTo = False
+            #both are false b/c you are no longer setting the regions
+
+            # print(f"app.substate_setting_A_Troops = {app.substate_setting_A_Troops}")
+            
+            # setting substates to setting troop count
+            app.substate_settingRegions = False
+            app.substate_setting_A_Troops = False
+            app.substate_setting_D_Troops = True
+            app.substate_rolling = True
+
+
+        elif(event.key == "Up"):
             attackingMax = checkMaxTroopsToAttack(app)
-
-            if(event.key == "Up" and app.attackingTroopCount < attackingMax):
-                app.attackingTroopCount += 1
-            elif(event.key == "Down" and app.attackingTroopCount > 1):
-                app.attackingTroopCount -= 1
-
-        elif(event.key == 'd'):
-        # and 
-        #     app.fromRegionString != '' and # <-- fix this
-        #     app.toRegionString != ''): # <-----^
-            
-#            app.B_width = 3
-
             defendingMax = checkMaxTroopsToDefend(app)
+            if(app.substate_setting_A_Troops == True and 
+                app.attackingTroopCount < attackingMax):
 
-            if(event.key == "Up" and app.defendingTroopCount < defendingMax):
                 app.attackingTroopCount += 1
-            elif(event.key == "Down" and app.defendingTroopCount > 1):
+
+            elif(app.substate_setting_D_Troops == True and 
+                app.defendingTroopCount < defendingMax):
+
+                app.defendingTroopCount += 1
+
+        elif(event.key == "Down"):
+            if(app.substate_setting_A_Troops == True and 
+               app.attackingTroopCount > 1):
                 app.attackingTroopCount -= 1
 
-        elif(event.key == 'Space'):
+            elif(app.substate_setting_D_Troops == True and
+                 app.defendingTroopCount > 1):
+                  app.defendingTroopCount -= 1
+        ###########################
+        elif(event.key == 'Space' and (app.rolledCount == 0)):
+            app.rolledCount = 1
             (app.attackingDice, app.defendingDice,
             app.diedAttacking, app.diedDefending) = rollDice(app.attackingTroopCount, app.defendingTroopCount)
+            
+            app.fromRegionObject.troopCount -= app.diedAttacking
+            app.toRegionObject.troopCount -= app.diedDefending
+            if(app.toRegionObject.troopCount < 1):
+                conquer(app.toRegionObject, app.fromRegionObject,
+                        app.attackingTroopCount, app.diedAttacking)
+
+def conquer(toRegionObject, fromRegionObject, attackCount, diedAttacking):
+    conquered = toRegionObject.troopGeneral
+    conquerer = fromRegionObject.troopGeneral
+
+    toRegionObject.troopGeneral = fromRegionObject.troopGeneral
+    toRegionObject.occupied = True
+    toRegionObject.color = fromRegionObject.color
+    
+    # removes the region from conqueredPlayer's set of territories
+    conquered.territories.remove(toRegionObject) 
+    # removes the region from conqueredPlayer's set of territories
+    conquerer.territories.add(toRegionObject) 
+
+    toRegionObject.troopCount = (attackCount - diedAttacking)
+
 
 # calculates the max num of troops player can attack with 
 def checkMaxTroopsToAttack(app):
+    if(app.fromRegionObject == None):
+        return
     highestNum = app.fromRegionObject.troopCount - 1
     if(highestNum >= 3):
         return 3
     elif(highestNum == 2):
         return 2
-    else:
+    else: # <-- will never occur b/c already checking if fromRegion is legal
         return False
 
 # calculates the max num of troops player can defend with 
 def checkMaxTroopsToDefend(app):
+    if(app.toRegionObject == None):
+        return
     highestNum = app.toRegionObject.troopCount
     if(highestNum >= 2):
         return 2

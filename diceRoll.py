@@ -65,5 +65,3 @@ def rollDice(attackingTroopCount, defendingTroopCount):
 def decendingOrder(L):
     L.sort()
     L.reverse()
-
-rollDice(3,2)
