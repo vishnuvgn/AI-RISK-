@@ -36,16 +36,16 @@ def rollDice(attackingTroopCount, defendingTroopCount):
     decendingOrder(attackingDice)
     decendingOrder(defendingDice)
 
-    print(f'attack: {attackingDice}')
-    print(f'defend: {defendingDice}')
+    # print(f'attack: {attackingDice}')
+    # print(f'defend: {defendingDice}')
 
     lengthOfShortestList = min(attackingTroopCount, defendingTroopCount)    
     shortened_A_dice = attackingDice[:lengthOfShortestList]
     shortened_D_dice = defendingDice[:lengthOfShortestList]
     
-    print()
-    print(f'attack: {shortened_A_dice}')
-    print(f'defend: {shortened_D_dice}')
+    # print()
+    # print(f'attack: {shortened_A_dice}')
+    # print(f'defend: {shortened_D_dice}')
 
     diedAttacking = 0
     diedDefending = 0
@@ -55,9 +55,9 @@ def rollDice(attackingTroopCount, defendingTroopCount):
         else: # attackingDice[i] <= defendingDice[i]
             diedAttacking += 1
 
-    print()
-    print(f'diedAttacking = {diedAttacking}')
-    print(f'diedDefending = {diedDefending}')
+    # print()
+    # print(f'diedAttacking = {diedAttacking}')
+    # print(f'diedDefending = {diedDefending}')
 
     return (attackingDice, defendingDice, diedAttacking, diedDefending)
 

@@ -2,12 +2,72 @@
 def drawSideBar(app, canvas):
     canvas.create_rectangle(app.mapWidth + 10, 10, app.width - 10,
                             app.height-10, outline="black")
-    drawStep1(app, canvas)
-    drawStep2(app, canvas)
+    if(app.setup == True):
+        drawSetup(app, canvas)
+    elif(app.step1Now == True):
+        drawStep1(app, canvas)
+    else:
+        drawStep1(app, canvas)
+        drawStep2(app, canvas)
 
 def drawBottomBar(app, canvas):
     canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth-10,
                             app.height-10, outline="black")
+
+
+# PRE GAME STAGE => SETUP
+####################################################
+def drawSetup(app, canvas):
+    sideBarx0 = app.mapWidth + 10
+    sideBary0 = 10
+    sideBarx1 = app.width - 10
+    sideBary1 = app.height - 10
+
+    sideBarHeight = sideBary1 - sideBary0
+    sideBarWidth = sideBarx1 - sideBarx0
+    setupHeight = sideBarHeight / app.numOfPlayers
+
+    setup_x0 = sideBarx0
+    setup_y0 = sideBary0
+    setup_x1 = sideBarx1
+    setup_y1 = setup_y0 + setupHeight
+    # draws the box for setup
+
+    for i in range(app.numOfPlayers):
+        if(i == app.currentIndex):
+            width=4
+            # troopsLeft = app.currentPlayer.initialNumOfTroops
+
+        else:
+            # troopsLeft = app.turns[i].initialNumOfTroops
+            width=2
+
+        canvas.create_rectangle(setup_x0, setup_y0, setup_x1,
+                            setup_y1, width=width)
+
+        canvas.create_text((setup_x1 + setup_x0)/2, setup_y0+10,
+                        text=f"Player {1+i} Place Troops", 
+                        fill=app.turns[i].color)
+        
+        troopsLeft = app.turns[i].initialNumOfTroops
+        # (at least until all countries are covered) --^
+
+        # app, canvas, troopNumber,
+        # top left of sidebar, height of step1box, width of step1box (same as sidebar),
+        # row, col (row, col of rectangle),
+        # message ("troops placed at a time" or "troops left")
+
+        troopsLeftMessage = "Troops Left"                                            
+        drawTroopsBox(app, canvas, troopsLeft,
+                    setup_x0,setup_y0,setupHeight,
+                    sideBarWidth,2,2, troopsLeftMessage)
+        setup_y0 += setupHeight
+        setup_y1 = setup_y0 + setupHeight
+
+
+
+####################################################
+
 
 # FIRST STEP DRAWING STUFF
 ####################################################
@@ -22,25 +82,38 @@ def drawStep1(app,canvas):
     canvas.create_rectangle(sideBarx0, sideBary0, sideBarx1,
                             sideBary0 + step1Height, width=2)
     canvas.create_text((sideBarx1 + sideBarx0)/2, sideBary0+10,
-                        text="Place Troops")
+                        text="Place Troops", fill=app.currentPlayer.color)
 
-    troopsAtATime = 1 # static for now, remember to change
-    troopsLeft = 5 # static for now, remember to change
+    troopsLeft = app.currentPlayer.troopPlaceCount # static for now, remember to change
 
     # app, canvas, troopNumber,
     # top left of sidebar, height of step1box, width of step1box (same as sidebar),
     # row, col (row, col of rectangle),
     # message ("troops placed at a time" or "troops left")
-    placedTroopsMessage = "Troops Placed at a Time"
-    drawTroopsBox(app, canvas, troopsAtATime,
-                  sideBarx0,sideBary0, step1Height,
-                  sideBarWidth,2,1,placedTroopsMessage)
 
     troopsLeftMessage = "Troops Left"                                            
     drawTroopsBox(app, canvas, troopsLeft,
                   sideBarx0,sideBary0,step1Height,
-                  sideBarWidth,2,3, troopsLeftMessage)
-    drawNextButton(app, canvas)
+                  sideBarWidth,2,2, troopsLeftMessage)
+    # drawCoverStep2(app, canvas)
+
+# def drawCoverStep2(app, canvas):
+#     sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
+#                                                   app.width - 10, app.height-10)
+#     sideBarHeight = sideBary1 - sideBary0
+#     sideBarWidth = sideBarx1 - sideBarx0
+#     topOfStep2Box = sideBarHeight / 5 
+
+#     # step2x0, step2y0, step2x1, step2y1 top left and bottom right points 
+#     # of the step2 box
+#     step2x0 = sideBarx0
+#     step2y0 = topOfStep2Box + 10
+#     step2x1 = sideBarx1
+#     step2y1 = sideBary1
+
+#     canvas.create_rectangle(step2x0,step2y0,step2x1,step2y1, 
+#                             width=2,fill='lightgray')
+
 
 # used to draw both how many troops left and how many troops placed at a time
 # draws one rectangle at row, col with troop info in center (the number)
@@ -57,24 +130,6 @@ def drawTroopsBox(app, canvas, troopCount, sideBarx0,sideBary0,
     canvas.create_text((x1+x0)/2,(y1+y0)/2, text=troopCount)
     canvas.create_text((x1+x0)/2,(y1+y0)/2+countBoxHeight,
                         text=message)
-
-def drawNextButton(app, canvas):
-    sideBarx0, sideBary0, sideBarx1, sideBary1 = (app.mapWidth + 10, 10,
-                                                  app.width - 10, app.height-10)
-    sideBarHeight = sideBary1 - sideBary0
-    sideBarWidth = sideBarx1 - sideBarx0
-
-    nextButtonHeigth = 20
-
-    x0 = (4*sideBarWidth/5) + sideBarx0
-    y0 = sideBary0
-    x1 = x0 + (sideBarWidth/5)
-    y1 = y0 + nextButtonHeigth
-
-    canvas.create_rectangle(x0,y0,x1,y1)
-    canvas.create_text((x1+x0)/2, (y1+y0)/2, text="NEXT")
-
-
 
 
 
@@ -148,8 +203,8 @@ def drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1):
         fromWidth = 1
         toWidth = 1
     
-    fromText = f'FROM: {app.fromRegion} '
-    toText = f'TO: {app.toRegion}' 
+    fromText = f'FROM: {app.fromRegionString} '
+    toText = f'TO: {app.toRegionString}' 
 
 
     canvas.create_rectangle(x0From, y0From, x1From, y1From, width=fromWidth)
@@ -199,11 +254,12 @@ def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
     canvas.create_text((x1Defending+x0Defending)/2, (y1Defending+y0Defending)/2,
                         text=defendingTroopMessage)
 
-    attackingTroopNum = 1 # static for now, will change
+
+    attackingTroopNum = app.attackingTroopCount
     drawTroopCountSquare(app, canvas, x0Attacking, y0Attacking,
                          x1Attacking, y1Attacking,attackingTroopNum)
 
-    defendingTroopNum = 5 # static for now, will change
+    defendingTroopNum = app.defendingTroopCount
     drawTroopCountSquare(app, canvas, x0Defending, y0Defending,
                          x1Defending, y1Defending,defendingTroopNum)
 

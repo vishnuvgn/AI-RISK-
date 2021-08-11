@@ -7,6 +7,7 @@ class Territory(object):
         self.name = name # region name
         self.occupied = False # if the region is occupied
         self.troopGeneral = None # who occupies the region 
+        self.color = 'white'
         self.troopCount = 0 # how many troops occupy the region
         self.circleCoordinates = (-1,-1)
         regionsSet.add(self) # adds the object itself
