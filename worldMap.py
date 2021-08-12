@@ -67,7 +67,6 @@ Western_Australia = Territory("Western_Australia")
 Eastern_Australia = Territory("Eastern_Australia")
 
 
-
 # neighbors
 worldMap = {
     # NORTH AMERICA
@@ -91,7 +90,7 @@ worldMap = {
     "North_Africa" : {Brazil, Western_Europe, Southern_Europe, Egypt, East_Africa, Congo},
     "Egypt" : {North_Africa, East_Africa, Southern_Europe, Middle_East},
     "Congo" : {North_Africa, East_Africa, South_Africa},
-    "East_Africa" : {Egypt, North_Africa, Congo, South_Africa, Madagascar}, 
+    "East_Africa" : {Egypt, North_Africa, Congo, South_Africa, Madagascar, Middle_East}, 
     "South_Africa" : {Congo, East_Africa, Madagascar},
     "Madagascar" : {East_Africa, South_Africa},
 
@@ -116,7 +115,7 @@ worldMap = {
     "Japan" : {Mongolia, Kamchatka},
     "Irkutsk" : {Siberia, Yakutsk, Kamchatka, Mongolia},
     "Yakutsk" : {Siberia, Irkutsk, Kamchatka},
-    "Kamchatka" : {Yakutsk, Irkutsk, Japan, Alaska},
+    "Kamchatka" : {Yakutsk, Irkutsk, Japan, Alaska, Mongolia},
 
     # AUSTRALIA
     "Indonesia" : {Siam, New_Guinea, Western_Australia},

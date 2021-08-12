@@ -11,7 +11,7 @@ def drawSideBar(app, canvas):
         drawStep2(app, canvas)
     else:
         drawStep1(app, canvas)
-        drawStep2(app, canvas)
+        # drawStep2(app, canvas)
         drawStep3(app, canvas)
 def drawBottomBar(app, canvas):
     canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth-10,
@@ -46,11 +46,11 @@ def drawSetup(app, canvas):
             width=2
 
         canvas.create_rectangle(setup_x0, setup_y0, setup_x1,
-                            setup_y1, width=width)
+                            setup_y1, width=width, fill=app.turns[i].color)
 
         canvas.create_text((setup_x1 + setup_x0)/2, setup_y0+10,
-                        text=f"Player {1+i} Place Troops", 
-                        fill=app.turns[i].color)
+                        text=f"{app.turns[i].name} Place Troops", 
+                        fill="black")
         
         troopsLeft = app.turns[i].initialNumOfTroops
         # (at least until all countries are covered) --^
@@ -83,9 +83,9 @@ def drawStep1(app,canvas):
     step1Height = sideBarHeight / 5 # divides into 5 rows
     # draws the box for step1
     canvas.create_rectangle(sideBarx0, sideBary0, sideBarx1,
-                            sideBary0 + step1Height, width=2)
+                            sideBary0 + step1Height, width=2, fill=app.currentPlayer.color)
     canvas.create_text((sideBarx1 + sideBarx0)/2, sideBary0+10,
-                        text="Place Troops", fill=app.currentPlayer.color)
+                        text="Place Troops", fill="black")
 
     troopsLeft = app.currentPlayer.troopPlaceCount # static for now, remember to change
 
@@ -398,7 +398,7 @@ def drawBattleResults(app, canvas):
     attackerMessage = f'{app.diedAttacking} troops died while attacking'
     defenderMessage = f'{app.diedDefending} troops died while defending'
     
-    font = f"Arial 24 bold"
+    font = "Arial 24 bold"
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
                         text=attackerMessage, anchor="s", font=font)
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
@@ -437,22 +437,43 @@ def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
     step3BoxHeight = step3y1 - step3y0 # height of step2 box
     step3BoxWidth = step3x1 - step3x0 # width of step2 box / same sidebar width
 
-    x0Attacking = step3x0
-    y0Attacking = (2*step3BoxHeight/10) + step3y0 + 5
-    x1Attacking = step2BoxWidth
-    y1Attacking = y0Attacking + (step2BoxHeight/10)
+    x0Moving = step3x0
+    y0Moving = (2*step3BoxHeight/10) + step3y0 + 5
+    x1Moving = step3BoxWidth + x0Moving
+    y1Moving = y0Moving + (step3BoxHeight/10)
 
-    canvas.create_rectangle(x0Attacking, y0Attacking, x1Attacking, y1Attacking,
-                            width=app.width_A)
+    canvas.create_rectangle(x0Moving, y0Moving, x1Moving, y1Moving, width=app.troopsToMoveWidth)
+
+    canvas.create_text((x1Moving + x0Moving)/2, (y1Moving + y0Moving)/2, 
+                        text="Troops to Move:")
+
+    movedTroopsBoxLen = 45
+
+    troopsManuevered = app.troopsManuevered
+
+    movedTroops_x0 = (x0Moving + 5*step3BoxWidth / 7) - 25
+    movedTroops_y0 = (y1Moving+y0Moving)/2 - movedTroopsBoxLen/2
+    movedTroops_x1 = (movedTroops_x0 + movedTroopsBoxLen)
+    movedTroops_y1 = (y1Moving+y0Moving)/2 + movedTroopsBoxLen/2
+
+    canvas.create_rectangle(movedTroops_x0, movedTroops_y0,
+                            movedTroops_x1, movedTroops_y1)
+
+    canvas.create_text((movedTroops_x0+movedTroops_x1)/2,
+                       (movedTroops_y0+movedTroops_y1)/2,
+                        text=troopsManuevered)
+
+####################################################
+
+# GAME ENDED DRAWING STUFF
+####################################################
+
+def gameEndedMode_redrawAll(app, canvas):
+    if(app.isTie):
+        gameEndMessage = "It's a Tie!"
+    else:
+        gameEndMessage = f"{app.winner.name} won!"
     
-    attackingTroopMessage = "Attacking Troops:" 
-    # text for attacking troops
-    canvas.create_text((x1Attacking+x0Attacking)/2, (y1Attacking+y0Attacking)/2,
-                        text=attackingTroopMessage)
-
-
-
-    attackingTroopNum = app.attackingTroopCount
-    drawTroopCountSquare(app, canvas, x0Attacking, y0Attacking,
-                         x1Attacking, y1Attacking,attackingTroopNum)
-
+    font="Arial 24 bold"
+    canvas.create_rectangle(0,0,app.width,app.height,fill="lightgray")
+    canvas.create_text(app.width/2,app.height/2, text=gameEndMessage, font=font)

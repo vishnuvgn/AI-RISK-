@@ -13,7 +13,7 @@ from cmuHelperFns import *
 from drawingFunctions import *
 from diceRoll import *
 from mousePressed import *
-
+from drawCircles import *
 
 from cmu_112_graphics import *
 
@@ -36,47 +36,42 @@ def roundHalfUp(d):
 
 # riskmap => https://www.ultraboardgames.com/risk/continents.php
 
-
-def calculateTroopPlaceCount(territoriesSet):
-    if(len(territoriesSet) < 9):
-        return 3
-    else:
-        return (len(territories) // 3)
-
 class Player(object):
     # colors = set() 
     players = [] # set of all players
     numberOfPlayers = 0
-    def __init__(self, color):
-        # self.name = ""
+    def __init__(self, name, color):
+        self.name = name
         self.cardCount = 0 # how many territory cards they have at a certain time
-        self.cards = [] # what the cards are - list of Card objects
+        # self.cards = [] # what the cards are - list of Card objects
         self.territories = set() # set of territories under Player control
-        self.troopPlaceCount = calculateTroopPlaceCount(self.territories) # how many troops Player gets to place on the map at the start of their turn
+        self.troopPlaceCount = 0 # how many troops Player gets to place on the map at the start of their turn
         self.initialNumOfTroops = 0 # how many troops player gets at start of setup
-        self.controlContinent = False
+        # self.controlContinent = False
         self.color = color
         Player.numberOfPlayers += 1
         # Player.colors.add(self.color)
         Player.players.append(self)
 
-
-
-    # methods for recieving (placing) troops, attacking, defending, manuevering
         
-class Card(object):
-    def __init__(self, territory, icon): # EX: c1 = Card(Alaska, Cavalry)
-        self.territory = territory
-        self.icon = icon
+# class Card(object):
+#     def __init__(self, territory, icon): # EX: c1 = Card(Alaska, Cavalry)
+#         self.territory = territory
+#         self.icon = icon
 
 # instantionation of the two players
 # make sure that no two players can have the same color
-player1 = Player("lightblue")
-player2 = Player("lightgreen")
+player1 = Player("Player 1", "lightblue")
+player2 = Player("Player 2", "lightgreen")
 # player3 = Player('salmon')
 # player4 = Player('cyan')
 
 def appStarted(app):
+
+    app.gameEnded = False
+    app.winner = None
+    app.isTie = False
+
     app.map = app.loadImage('riskmap.jpeg')
     app.map = app.scaleImage(app.map, 1)
     app.rows = 100
@@ -106,6 +101,7 @@ def appStarted(app):
     app.step3Now = False # if player on step3 or not
 
     #############################
+    # STEP 2 - attacking
     app.selectedRegionName = ''
     app.selectedRegionObject = None
 
@@ -118,7 +114,6 @@ def appStarted(app):
     app.fromRegionObject = None # used to access the troopCount in each territory
     app.toRegionObject = None # --^
 
-
     app.isFromLegal = False
     app.isToLegal = False
 
@@ -127,13 +122,16 @@ def appStarted(app):
     app.substate_setting_A_Troops = False # setting attacking troops
     app.substate_rolling = False
 
+    app.setRegions = False
+    app.setAttack = False
+    app.setDefend = False
+
     app.width_A = 1 # width of attacking box (the count box)
     app.width_D = 1 # width of defending box (the count box)
 
     app.rolledCount = 0
 
-
-    #############################
+    app.finishedRequired = False
 
     app.attackingTroopCount = 1 # static for now, will change later
     app.defendingTroopCount = 1 # static for now, will change later
@@ -143,6 +141,13 @@ def appStarted(app):
 
     app.diedAttacking = 0 # change into player later?
     app.diedDefending = 0 # change into player later?
+
+
+    #############################
+    # STEP 3 -> Manuever
+    app.troopsManuevered = 0
+    app.troopsToMoveWidth = 1
+    #############################
 
     # bottome right corner of map
     app.mapBottomY = 538
@@ -163,6 +168,7 @@ def appStarted(app):
     app.mapWidth = mapPic.width()
 
 def redrawAll(app, canvas):
+
     drawMap(app, canvas)
     drawStepsAndStats(app, canvas)
     # drawGrid(app, canvas)
@@ -180,179 +186,97 @@ def drawStepsAndStats(app, canvas):
 
 ####################################################
 
+def resetStep1(app):
+    app.setup = False 
+    app.step1Now = True
+    app.step2Now = False
+    app.step3Now = False
 
-# draws a circle that shows the number of troops in the country
-def drawCircle(app, canvas, row, col, territory, fillColor=""): 
-    (x0, y0, x1, y1) = getCellBounds(app, row, col)
-    cx = (x0+x1) / 2
-    cy = (y0+y1) / 2
-    canvas.create_oval(x0-app.circleRadius, y0-app.circleRadius,
-                       x1+app.circleRadius, y1+app.circleRadius,
-                       fill=fillColor)
-    troopCount = territory.troopCount
-    # ^ add font color and everything later
-    canvas.create_text(cx,cy, text=troopCount)
-    return (cx,cy) # returns the cooridinates of the center of the circle
+def resetStep2(app):
+    app.selectedRegionName = ''
+    app.selectedRegionObject = None
 
-def drawAllCircles(app, canvas):
-    # NORTH AMERICA
-    Alaska.circleCoordinates = drawCircle(app, canvas, 3, 2, Alaska, Alaska.color) # Alaska
-    Northwest_Territory.circleCoordinates = drawCircle(app, canvas, 4, 10, Northwest_Territory, Northwest_Territory.color) # Northwest Territory
-    Alberta.circleCoordinates = drawCircle(app, canvas, 19, 4, Alberta, Alberta.color) # Alberta
-    Western_United_States.circleCoordinates = drawCircle(app, canvas, 26, 4, Western_United_States, Western_United_States.color) # Western United States
-    Central_America.circleCoordinates = drawCircle(app, canvas, 36, 6, Central_America, Central_America.color) # Central America
-    Eastern_United_States.circleCoordinates = drawCircle(app, canvas, 29, 17, Eastern_United_States, Eastern_United_States.color) # Eastern United States
-    Greenland.circleCoordinates = drawCircle(app, canvas, 3, 21, Greenland, Greenland.color) # Greenland
-    Ontario.circleCoordinates = drawCircle(app, canvas, 13, 14, Ontario, Ontario.color) # Ontario
-    Quebec.circleCoordinates = drawCircle(app, canvas, 18, 20, Quebec, Quebec.color) # Quebec
-
-    # SOUTH AMERICA
-    Venezuela.circleCoordinates = drawCircle(app, canvas, 35, 16, Venezuela, Venezuela.color) # Venezuela
-    Peru.circleCoordinates = drawCircle(app, canvas, 45, 8, Peru, Peru.color) # Peru
-    Argentina.circleCoordinates = drawCircle(app, canvas, 57, 11, Argentina, Argentina.color) # Argentina
-    Brazil.circleCoordinates = drawCircle(app, canvas, 50, 19, Brazil, Brazil.color) # Brazil
+    app.isFrom = False # used to toggle between FROM and TO
+    app.isTo = False # used to toggle between FROM and TO
     
-    # AFRICA
-    North_Africa.circleCoordinates = drawCircle(app, canvas, 41, 27, North_Africa, North_Africa.color) # North_Africa
-    Congo.circleCoordinates = drawCircle(app, canvas, 54, 28, Congo, Congo.color) # Congo
-    South_Africa.circleCoordinates = drawCircle(app, canvas, 64, 29, South_Africa, South_Africa.color) # South_Africa
-    Madagascar.circleCoordinates = drawCircle(app, canvas, 66, 41, Madagascar, Madagascar.color) # Madagascar
-    East_Africa.circleCoordinates = drawCircle(app, canvas, 52, 40, East_Africa, East_Africa.color) # East_Africa
-    Egypt.circleCoordinates = drawCircle(app, canvas, 38, 33, Egypt, Egypt.color) # Egypt
+    app.fromRegionString = '' # used for searching the dictionary as keys are strings
+    app.toRegionString = '' # --^
 
-    # EUROPE
-    Western_Europe.circleCoordinates = drawCircle(app, canvas, 35, 22, Western_Europe, Western_Europe.color) # Western_Europe
-    Great_Britain.circleCoordinates = drawCircle(app, canvas, 26, 21, Great_Britain, Great_Britain.color) # Great_Britain
-    Iceland.circleCoordinates = drawCircle(app, canvas, 9, 26, Iceland, Iceland.color) # Iceland
-    Scandinavia.circleCoordinates = drawCircle(app, canvas, 5, 32, Scandinavia, Scandinavia.color) # Scandinavia
-    Ukraine.circleCoordinates = drawCircle(app, canvas, 13, 38, Ukraine, Ukraine.color) # Ukraine
-    Northern_Europe.circleCoordinates = drawCircle(app, canvas, 19, 31, Northern_Europe, Northern_Europe.color) # Northern_Europe
-    Southern_Europe.circleCoordinates = drawCircle(app, canvas, 33, 30, Southern_Europe, Southern_Europe.color) # Southern_Europe
+    app.fromRegionObject = None # used to access the troopCount in each territory
+    app.toRegionObject = None # --^
 
-    # ASIA
-    Middle_East.circleCoordinates = drawCircle(app, canvas, 41, 38, Middle_East, Middle_East.color) # Middle_East
-    India.circleCoordinates = drawCircle(app, canvas, 43, 45, India, India.color) # India
-    Siam.circleCoordinates = drawCircle(app, canvas, 41, 53, Siam, Siam.color) # Siam
-    China.circleCoordinates = drawCircle(app, canvas, 33, 52, China, China.color) # China
-    Afghanistan.circleCoordinates = drawCircle(app, canvas, 29, 41, Afghanistan, Afghanistan.color) # Afghanistan
-    Ural.circleCoordinates = drawCircle(app, canvas, 12, 42, Ural, Ural.color) # Ural
-    Siberia.circleCoordinates = drawCircle(app, canvas, 5, 45, Siberia, Siberia.color) # Siberia
-    Irkutsk.circleCoordinates = drawCircle(app, canvas, 13, 50, Irkutsk, Irkutsk.color) # Irkutsk
-    Yakutsk.circleCoordinates = drawCircle(app, canvas, 3, 51, Yakutsk, Yakutsk.color) # Yakutsk
-    Mongolia.circleCoordinates = drawCircle(app, canvas, 20, 52, Mongolia, Mongolia.color) # Mongolia
-    Kamchatka.circleCoordinates = drawCircle(app, canvas, 3, 58, Kamchatka, Kamchatka.color) # Kamchatka
-    Japan.circleCoordinates = drawCircle(app, canvas, 22, 59, Japan, Japan.color) # Japan
+    app.isFromLegal = False
+    app.isToLegal = False
+
+    app.substate_settingRegions = True
+    app.substate_setting_D_Troops = False # setting defending troops
+    app.substate_setting_A_Troops = False # setting attacking troops
+    app.substate_rolling = False
+
+    app.setRegions = False
+    app.setAttack = False
+    app.setDefend = False
+
+    app.width_A = 1 # width of attacking box (the count box)
+    app.width_D = 1 # width of defending box (the count box)
+
+    app.rolledCount = 0
+
+    app.finishedRequired = False
+
+    app.attackingTroopCount = 1 # static for now, will change later
+    app.defendingTroopCount = 1 # static for now, will change later
+
+    app.attackingDice = [None, None, None]
+    app.defendingDice = [None, None]
+
+    app.diedAttacking = 0 # change into player later?
+    app.diedDefending = 0 # change into player later?
+
+
+def resetStep3(app):
+    app.troopsManuevered = 0
+    app.troopsToMoveWidth = 1
+
+def nextPlayer(app):
+    resetStep1(app)
+    resetStep2(app)
+    resetStep3(app)
+
+    app.currentIndex = (app.currentIndex + 1) % len(app.turns)
+    app.currentPlayer = app.turns[app.currentIndex]
+    app.currentPlayer.troopPlaceCount = calculateTroopPlaceCount(app, app.currentPlayer.territories)
+
+def keyPressed(app, event):   
+    ###################
+    # QUIT
+    ###################
+    if(event.key == "q"):
+        endGame(app)
+
+    if(app.gameEnded):
+        return
+
+    if(event.key == "m" and app.finishedRequired):
+        app.setup = False 
+        app.step1Now = False
+        app.step2Now = False
+        app.step3Now = True 
+
+        app.fromRegionString = ''
+        app.toRegionString = ''
+        app.toRegionObject = None
+        app.fromRegionObject = None
+        app.isFromLegal = False
+        app.isToLegal = False
     
-    # AUSTRALIA
-    Indonesia.circleCoordinates = drawCircle(app, canvas, 54, 47, Indonesia, Indonesia.color) # Indonesia
-    New_Guinea.circleCoordinates = drawCircle(app, canvas, 46, 59, New_Guinea, New_Guinea.color) # New_Guinea
-    Western_Australia.circleCoordinates = drawCircle(app, canvas, 67, 52, Western_Australia, Western_Australia.color) # Western_Australia
-    Eastern_Australia.circleCoordinates = drawCircle(app, canvas, 64, 60, Eastern_Australia, Eastern_Australia.color) # Eastern_Australia
+        app.isFrom = False # used for toggling 
+        app.isTo = False # used for toggling
 
+    elif(event.key == "y" and app.finishedRequired): # yield, move to next player
+        nextPlayer(app)
 
-'''
-def mousePressed(app, event):
-    # print("(row,col):", getCell(app, event.x, event.y))
-    # print("event.x = ", event.x)
-    # print("event.y = ", event.y)
-    # print("Alaska Coordinates", Alaska.circleCoordinates)
-
-
-    for region in regionsSet:
-        cx, cy = region.circleCoordinates
-        # checks if the user clicked inside the circle that 
-        # is linked to a region
-
-        allRegionsOccupied = checkRegionsOccupied()
-        if(not allRegionsOccupied):
-            booleanExpression = 'region.occupied == False'
-        else:
-            booleanExpression = 'region.troopGeneral == app.currentPlayer'
-
-
-
-        # if (clickedInCircle(app, cx, cy, event.x, event.y) and 
-        # (region.occupied == False or region.troopGeneral == app.currentPlayer)):
-        if (clickedInCircle(app, cx, cy, event.x, event.y) and eval(booleanExpression)):
-            region.occupied = True
-            # print(f"{region.name} troop count:", region.troopCount)
-            region.troopCount += 1 # adding one troop for now, will change later
-            # print(f"{region.name} troop count:", region.troopCount)
-            
-            if(app.setup == True): # setup stage
-                app.currentPlayer.territories.add(region)
-                region.troopGeneral = app.currentPlayer
-
-                region.color = app.currentPlayer.color
-
-                app.currentPlayer.initialNumOfTroops -= 1
-                # print(f'current index = {app.currentIndex}')
-                app.currentIndex = ((app.currentIndex + 1) % app.numOfPlayers)
-                # print(f'current index = {app.currentIndex}')
-                app.currentPlayer = app.turns[app.currentIndex]
-                
-                if(app.turns[len(app.turns) - 1].initialNumOfTroops == 0):
-                    app.setup = False
-                    app.step1Now = True
-
-            elif(app.step1Now == True):
-                if(app.currentPlayer.troopPlaceCount > 0):
-                    app.currentPlayer.troopPlaceCount -= 1    
-
-                region.troopCount -= 1
-                if(app.currentPlayer.troopPlaceCount == 0):
-                    app.step1Now = False
-                    app.step2Now = True
-
-
-
-            # sets the last clicked region to selected region,
-            # this is useful for drawFromTo function
-
-            app.selectedRegionName = (region.name)
-            # fix me, error handling 'Not in Neighbor'
-            if (app.isFrom == True and app.isTo == False):
-                app.fromRegionObject = region # used for calculating troop counts
-                app.fromRegionString = app.selectedRegionName # used for dictionary searching
-                if(app.toRegionString != ''):
-                    ifNeighbors = checkIfNeighbors(app.fromRegionString, app.toRegionString)
-                    if(not ifNeighbors):
-                        app.fromRegionString = 'Not a Neighbor'
-            elif (app.isTo == True and app.isFrom == False):
-                app.toRegionObject = region # used for calculating troop counts
-                app.toRegionString = app.selectedRegionName # used for dictionary searching
-                if(app.fromRegionString != ''):
-                        ifNeighbors = checkIfNeighbors(app.fromRegionString, app.toRegionString)
-                        if(not ifNeighbors):
-                            app.toRegionString = 'Not a Neighbor'
-
-            #remember to add two conditons to the fromRegion toRegion code above
-            # 1) toRegion cannot be a region that the current player occupies
-            # 2) fromRegion must have AT LEAST two troops
-
-            # region.occupied = True
-            # region.troopGeneral = player1 (whatever)
-        
-
-
-    # if ROLL clicked (and on step2 of game), then call rollDice fn
-'''
-
-'''
-def checkRegionsOccupied():
-    for region in regionsSet:
-        if(region.occupied == False):
-            return False
-    return True'''
-
-'''# distance formula to ckeck if clicked in circle
-def clickedInCircle(app, cx, cy, x, y):
-    dist = ((x - cx)**2 + (y - cy)**2)**0.5
-    if(dist <= app.circleRadius + 3): # give a little leeway 
-        return True
-    return False
-'''
-def keyPressed(app, event):
+    #step 2 stuff
     if(app.step2Now == True):
         if (event.key == 'f' and app.substate_settingRegions == True):
             app.isFrom = True
@@ -369,6 +293,12 @@ def keyPressed(app, event):
             app.substate_setting_D_Troops = False
             app.substate_rolling = False
             
+            app.setRegions = False 
+            app.setAttack = False
+            app.setDefend = False
+            # app.rolled ?
+
+
             app.fromRegionString = ''
             app.toRegionString = ''
             app.toRegionObject = None
@@ -395,6 +325,10 @@ def keyPressed(app, event):
             app.width_A = 3
             app.width_D = 1
 
+            app.setRegions = True # when a pressed, regions are set 
+            app.setAttack = True
+            
+
             app.isFrom = False
             app.isTo = False
             #both are false b/c you are no longer setting the regions
@@ -419,6 +353,9 @@ def keyPressed(app, event):
 
             app.isFrom = False
             app.isTo = False
+
+            app.setDefend = True
+
             #both are false b/c you are no longer setting the regions
 
             # print(f"app.substate_setting_A_Troops = {app.substate_setting_A_Troops}")
@@ -452,16 +389,84 @@ def keyPressed(app, event):
                  app.defendingTroopCount > 1):
                   app.defendingTroopCount -= 1
         ###########################
-        elif(event.key == 'Space' and (app.rolledCount == 0)):
+        elif(event.key == 'Space' and (app.setRegions) and
+            (app.setAttack) and (app.setDefend) and app.rolledCount == 0):
+            
             app.rolledCount = 1
             (app.attackingDice, app.defendingDice,
             app.diedAttacking, app.diedDefending) = rollDice(app.attackingTroopCount, app.defendingTroopCount)
             
+
             app.fromRegionObject.troopCount -= app.diedAttacking
             app.toRegionObject.troopCount -= app.diedDefending
+
             if(app.toRegionObject.troopCount < 1):
                 conquer(app.toRegionObject, app.fromRegionObject,
                         app.attackingTroopCount, app.diedAttacking)
+
+    # STEP 3 stuff
+    ###################
+    elif(app.step3Now == True):
+        if(event.key == "f"):
+            app.isFrom = True
+            app.isTo = False
+
+        # makes sure that from region is legal
+        elif(event.key == "t" and app.isFromLegal == True):
+            app.isFrom = False
+            app.isTo = True
+
+        if(app.isToLegal and app.isFromLegal and
+            app.isFromLegal == True and app.isToLegal == True):
+            if(event.key == "Enter"):
+                app.isFrom = False # toggles the width
+                app.isTo = False # toggles the width
+                app.troopsToMoveWidth = 3
+
+            if(event.key == "Up"):
+                movingMax = app.fromRegionObject.troopCount - 1
+
+                if(app.troopsManuevered < movingMax):                
+                    app.troopsManuevered += 1
+
+            elif(event.key == "Down"):
+                if(app.troopsManuevered > 1):
+                    app.troopsManuevered -= 1
+
+            elif(event.key == "c"): # confirm move
+                app.fromRegionObject.troopCount -= app.troopsManuevered
+                app.toRegionObject.troopCount += app.troopsManuevered
+                nextPlayer(app)
+
+def endGame(app):
+    # drawBlankScreen and show who won or tie
+    app.gameEnded = True
+    app.mode = 'gameEndedMode'
+    listOfNumOfRegions = []
+    for player in app.turns:
+        listOfNumOfRegions.append(len(player.territories))
+    
+    for i in range(len(listOfNumOfRegions) - 1):
+        if(listOfNumOfRegions[i] != listOfNumOfRegions[i+1]):
+            app.isTie = False
+        else:
+            app.isTie = True
+
+    if(app.isTie == False):
+        bestWinner = None
+        bestWinnerTerritoryCount = -1
+        for player in app.turns:
+            if(len(player.territories) > bestWinnerTerritoryCount):
+                bestWinner = player
+                bestWinnerTerritoryCount = len(player.territories)
+        app.winner = bestWinner
+
+def checkGameEnd(currentPlayer):
+    if(len(currentPlayer.territories) == len(regionsSet)):
+        app.winner = currentPlayer
+        return True
+    else:
+        return False
 
 def conquer(toRegionObject, fromRegionObject, attackCount, diedAttacking):
     conquered = toRegionObject.troopGeneral
@@ -477,6 +482,10 @@ def conquer(toRegionObject, fromRegionObject, attackCount, diedAttacking):
     conquerer.territories.add(toRegionObject) 
 
     toRegionObject.troopCount = (attackCount - diedAttacking)
+    fromRegionObject.troopCount -= toRegionObject.troopCount
+
+    if(checkGameEnd(conquerer)):
+        endGame()
 
 
 # calculates the max num of troops player can attack with 
