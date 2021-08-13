@@ -1,3 +1,5 @@
+# This file contains the function that drew all the circles on the map
+
 from worldMap import *
 from cmuHelperFns import *
 # draws a circle that shows the number of troops in the country

@@ -1,3 +1,5 @@
+# This file includes functions that control the computer's moves
+
 import random
 from worldMap import *
 from helpers import *
@@ -44,7 +46,7 @@ def aiPlaySTEP1(app):
         region.troopCount += 1
         app.currentPlayer.troopPlaceCount -= 1
 
-        print(f"region: {region.name}, troops there: {region.troopCount}")
+        # print(f"region: {region.name}, troops there: {region.troopCount}")
 
     if(app.currentPlayer.troopPlaceCount == 0):
         app.setup = False
@@ -61,10 +63,10 @@ def aiPlaySTEP2(app):
     if (a_or_n == True):
 
         app.fromRegionObject = decideFromRegion(app)
-        print(f'app.fromRegionObject : {app.fromRegionObject}')
+        # print(f'app.fromRegionObject : {app.fromRegionObject}')
         if(app.fromRegionObject == False):
             return 
-        print(f'app.fromRegionObjectName : {app.fromRegionObject.name}')
+        # print(f'app.fromRegionObjectName : {app.fromRegionObject.name}')
 
         app.fromRegionString = app.fromRegionObject.name
 
@@ -79,8 +81,8 @@ def aiPlaySTEP2(app):
         app.diedAttacking, app.diedDefending) = rollDice(app.attackingTroopCount, 
                                                         app.defendingTroopCount)
 
-        print(f'''{app.fromRegionString} with {app.fromRegionObject.troopCount} soldiers
-    to {app.toRegionString} with {app.toRegionObject.troopCount} soldiers''')
+    #     print(f'''{app.fromRegionString} with {app.fromRegionObject.troopCount} soldiers
+    # to {app.toRegionString} with {app.toRegionObject.troopCount} soldiers''')
 
         app.fromRegionObject.troopCount -= app.diedAttacking
         app.toRegionObject.troopCount -= app.diedDefending
@@ -103,10 +105,10 @@ def attackOrNot():
     decision = random.choice([0, 1])
     # decision = random.choice(0,1)
     if(decision == 0):
-        print("ai not attacking")
+        # print("ai not attacking")
         return False    
     else:
-        print("ai attacking")
+        # print("ai attacking")
         return True
         
 
@@ -143,7 +145,7 @@ def decideToRegion(app, fromRegion):
         if (place.troopGeneral.name != app.currentPlayer.name):
             legalToAttackPlaces.append(place)
     
-    print(legalToAttackPlaces)
+    # print(legalToAttackPlaces)
     region = random.choice(legalToAttackPlaces)
 
     return region
@@ -163,14 +165,6 @@ def checkMaxTroopsToAttack_AI(fromRegion):
         return 3
     else:
         return 2
-
-
-
-
-
-
-
-
 
 
 ####################

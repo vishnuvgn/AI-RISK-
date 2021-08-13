@@ -1,3 +1,5 @@
+# This is the main file and the one that should be run to run the application
+
 #################################################
 # Term Project: RISK
 #
@@ -20,23 +22,7 @@ from drawIntroScreen import *
 
 from cmu_112_graphics import *
 
-#################################################
-# Helper functions
-#################################################
-
-def almostEqual(d1, d2, epsilon=10**-7):
-    # note: use math.isclose() outside 15-112 with Python version 3.5 or later
-    return (abs(d2 - d1) < epsilon)
-
-import decimal
-def roundHalfUp(d):
-    # Round to nearest with ties going away from zero.
-    rounding = decimal.ROUND_HALF_UP
-    # See other rounding options here:
-    # https://docs.python.org/3/library/decimal.html#rounding-modes
-    return int(decimal.Decimal(d).to_integral_value(rounding=rounding))
-
-
+# CITAION - the image below is the one I use for the risk map
 # riskmap => https://www.ultraboardgames.com/risk/continents.php
 
 class Player(object):
@@ -62,13 +48,6 @@ class Player(object):
     def setPlayerToAI(self):
         self.isAI = True
 
-
-
-        
-# class Card(object):
-#     def __init__(self, territory, icon): # EX: c1 = Card(Alaska, Cavalry)
-#         self.territory = territory
-#         self.icon = icon
 
 # instantionation of the two players
 # make sure that no two players can have the same color
@@ -294,13 +273,10 @@ def appStarted(app):
     app.mapBottomY = 538
     app.mapRightX = 806
 
+    # Citation : the lines 280-282 were used to get the size of the image using 
+    # the code from the the link below
     # code to get size of image
     # https://newbedev.com/python-get-width-and-height-of-image-tkinter-code-example
-
-    # img = Image.open('riskmap.jpeg')
-    # mapPic = ImageTk.PhotoImage(img)
-    # app.mapHeight = mapPic.height()
-    # app.mapWidth = mapPic.width()
     
     mapPic = ImageTk.PhotoImage(app.map)
     app.mapHeight = mapPic.height()

@@ -1,3 +1,6 @@
+# This file contains the function that rolls the dice and decides how many
+# attackers and defenders died. It is called when the 'Space' bar is pressed.
+
 import random
 '''
 

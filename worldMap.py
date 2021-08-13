@@ -1,3 +1,6 @@
+# This file creates all the region objects and holds a dictionary that maps 
+# a region to its neighbors
+
 # global set that holds all the territories
 regionsSet = set()
 

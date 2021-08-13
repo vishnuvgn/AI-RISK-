@@ -1,3 +1,10 @@
+# This file just helped me organize some of my functions so that my main files
+# wouldn't get too long
+
+# CITATION: I got theese three functions (drawGrid, getCellBounds, and getCell)
+# from https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
+
+
 def drawGrid(app,canvas):
     for row in range(app.rows):
         for col in range(app.cols):

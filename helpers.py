@@ -1,3 +1,6 @@
+# This file contains functions I use in main to check if the game has eneded and 
+# if one player conquered a territory of another player
+
 from worldMap import *
 
 

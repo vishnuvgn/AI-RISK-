@@ -1,3 +1,5 @@
+# This is a file that contains the functions that draw most of the things on the canvas
+
 # draws a rectangle for sidebar
 def drawSideBar(app, canvas):
     canvas.create_rectangle(app.mapWidth + 10, 10, app.width - 10,

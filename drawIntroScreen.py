@@ -1,6 +1,9 @@
-from cmu_112_graphics import *
+# This is the file I used to draw the risk piece and title on the intro screen
 
-# https://i.kinja-img.com/gawker-media/image/upload/t_original/1462528836859457569.jpg
+from cmu_112_graphics import *
+# CITATION: The image I used for the risk piece is below
+# https://www.reddit.com/r/boardgames/comments/7nloc8/better_game_pieces_for_risk/ (found image on reddit)
+# https://i.kinja-img.com/gawker-media/image/upload/t_original/1462528836859457569.jpg (image itself)
 # ^ for risk piece pics
 
 def loadRiskPieces(app):

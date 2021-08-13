@@ -1,3 +1,6 @@
+# This file contains what will happen if the mouse is pressed depending on 
+# the step that the game is in (attacking vs placing troops)
+
 from worldMap import *
 from aiPlaying import *
 
