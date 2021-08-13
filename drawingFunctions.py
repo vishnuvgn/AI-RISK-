@@ -13,9 +13,81 @@ def drawSideBar(app, canvas):
         drawStep1(app, canvas)
         # drawStep2(app, canvas)
         drawStep3(app, canvas)
+
 def drawBottomBar(app, canvas):
-    canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth-10,
+    canvas.create_rectangle(10, app.mapHeight+10, app.mapWidth,
                             app.height-10, outline="black")
+    drawHelp(app, canvas)
+    drawError(app, canvas)
+
+def drawHelp(app, canvas):
+    x0 = 10
+    y0 = app.mapHeight+10
+    x1 = app.mapWidth
+    y1 = ((app.mapHeight+10) + ((app.height-10) - (app.mapHeight+10))/2) + 20
+    canvas.create_rectangle(x0, y0, x1, y1)
+
+
+    help1 = app.helpStringsDict[app.helpStringKey1]
+    font="Papyrus 16"
+    canvas.create_text((x0+x1)/2, ((y0+y1)/2)-30,
+                    text=help1, font=font)
+
+
+    help2 = ''
+    if(app.helpStringKey2 > -1):
+        help2 = app.helpStringsDict[app.helpStringKey2]
+
+    canvas.create_text((x0+x1)/2, (y0+y1)/2,
+                    text=help2, font=font)
+    
+    help3 = ''
+    if(app.helpStringKey3 > -1):
+        help3 = app.helpStringsDict[app.helpStringKey3]
+
+    canvas.create_text((x0+x1)/2, ((y0+y1)/2)+30,
+                    text=help3, font=font)
+
+
+def drawError(app, canvas):
+    x0 = 10
+    y0 = ((app.mapHeight+10) + ((app.height-10) - (app.mapHeight+10))/2) + 20
+    x1 = app.mapWidth                        
+    y1 = app.height-10
+
+    canvas.create_rectangle(x0, y0, x1, y1)
+    font="Papyrus 16"
+
+    error = app.errorString
+
+    canvas.create_text((x0+x1)/2, (y0+y1)/2,
+                    text=error, fill="red", font=font)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # PRE GAME STAGE => SETUP
@@ -398,7 +470,7 @@ def drawBattleResults(app, canvas):
     attackerMessage = f'{app.diedAttacking} troops died while attacking'
     defenderMessage = f'{app.diedDefending} troops died while defending'
     
-    font = "Arial 24 bold"
+    font = "Papyrus 24 bold"
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
                         text=attackerMessage, anchor="s", font=font)
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
@@ -427,7 +499,7 @@ def drawStep3(app, canvas):
 
     canvas.create_rectangle(step3x0,step3y0,step3x1,step3y1, width=2)
     canvas.create_text((step3x0 + step3x1)/2, step3y0+10,
-                         text="MANUEVER")
+                         text="MANEUVER")
 
     drawFromTo(app, canvas, step3x0, step3y0, step3x1, step3y1)
     drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1)
@@ -449,7 +521,7 @@ def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
 
     movedTroopsBoxLen = 45
 
-    troopsManuevered = app.troopsManuevered
+    troopsManeuvered = app.troopsManeuvered
 
     movedTroops_x0 = (x0Moving + 5*step3BoxWidth / 7) - 25
     movedTroops_y0 = (y1Moving+y0Moving)/2 - movedTroopsBoxLen/2
@@ -461,7 +533,7 @@ def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
 
     canvas.create_text((movedTroops_x0+movedTroops_x1)/2,
                        (movedTroops_y0+movedTroops_y1)/2,
-                        text=troopsManuevered)
+                        text=troopsManeuvered)
 
 ####################################################
 
@@ -472,8 +544,21 @@ def gameEndedMode_redrawAll(app, canvas):
     if(app.isTie):
         gameEndMessage = "It's a Tie!"
     else:
-        gameEndMessage = f"{app.winner.name} won!"
+        gameEndMessage = f"{app.winner.name} WON!"
     
-    font="Arial 24 bold"
-    canvas.create_rectangle(0,0,app.width,app.height,fill="lightgray")
-    canvas.create_text(app.width/2,app.height/2, text=gameEndMessage, font=font)
+    font="Papyrus 100 bold"
+    canvas.create_rectangle(0,0,app.width,app.height,fill="CadetBlue1")
+    canvas.create_text(app.width/2,app.height/2,
+                       text=gameEndMessage, font=font, fill="purple")
+
+    drawGoodbyeMessage(app, canvas)
+
+def drawGoodbyeMessage(app, canvas):
+
+    canvas.create_text(((2*app.width/5)+50+(3*app.width/5)-50)/2,
+                      ((((3*app.height/5)+30)+((4*app.height/5)-30))/2),
+                         text="Good Game! Press Ctrl Q to quit", font="Papyrus 40 bold")
+
+
+
+

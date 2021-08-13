@@ -1,4 +1,5 @@
 from worldMap import *
+from aiPlaying import *
 
 def mousePressed(app, event):
     # bottom right corner of map
@@ -20,6 +21,7 @@ def calculateTroopPlaceCount(app, territoriesSet):
         return (len(app.currentPlayer.territories) // 3)
 
 def setupMouseClicked(app, event):
+    app.helpStringKey1 = 0
     for region in regionsSet:
         (cx, cy) = region.circleCoordinates
         # checks if the user clicked inside the circle that 
@@ -44,10 +46,12 @@ def setupMouseClicked(app, event):
             region.color = app.currentPlayer.color
 
             app.currentPlayer.initialNumOfTroops -= 1
-            # print(f'current index = {app.currentIndex}')
             app.currentIndex = ((app.currentIndex + 1) % app.numOfPlayers)
-            # print(f'current index = {app.currentIndex}')
             app.currentPlayer = app.turns[app.currentIndex]
+
+            # if ai's turn, call aiPlaySETUP for it to make a move
+            if(app.currentPlayer.isAI):
+                aiPlaySETUP(app)      
             
             if(app.turns[len(app.turns) - 1].initialNumOfTroops == 0):
                 app.setup = False
@@ -59,7 +63,7 @@ def setupMouseClicked(app, event):
 
 
 def step1MouseClicked(app, event): # reinforcement
-    
+    app.helpStringKey1 = 0
     for region in regionsSet:
         (cx, cy) = region.circleCoordinates
         # checks if the user clicked inside the circle that 
@@ -77,6 +81,10 @@ def step1MouseClicked(app, event): # reinforcement
                 app.step2Now = True
                 app.step3Now = False
                 app.finishedRequired = True # all required thing are done
+                app.helpStringKey1 = 1
+                app.helpStringKey2 = 2
+                app.helpStringKey3 = 3
+
 
 def step2MouseClicked(app, event): # attacking
     for region in regionsSet:
@@ -104,17 +112,20 @@ def step2MouseClicked(app, event): # attacking
 def verifyFromRegion(app, action):
     # checks if the player controls from region
     if(app.fromRegionObject not in app.currentPlayer.territories): 
-        app.fromRegionString = f"You don't control {app.fromRegionString}"
+        app.errorString = f"You don't control {app.fromRegionString}"
+        app.fromRegionString = ''
         app.fromRegionObject = None
         app.isFromLegal = False
     # checks if the player has the minimum number of troops 
     # to attack from the fromRegion
     elif(app.fromRegionObject.troopCount < 2):
-        app.fromRegionString = f"You don't have enough troops in {app.fromRegionString} to {action}"
+        app.errorString = f"You don't have enough troops in {app.fromRegionString} to {action}"
+        app.fromRegionString = ''
         app.fromRegionObject = None
         app.isFromLegal = False
     else:
         app.isFromLegal = True
+        app.errorString = ''
 
 # verifys if the toRegion is valid
 # changes app.isToLegal accordingly
@@ -123,18 +134,25 @@ def verifyToRegion(app):
     # if they do, then what's the point of attacking?
     # it will not allow it
     if(app.toRegionObject in app.currentPlayer.territories):
-        app.toRegionString = f"You already control {app.toRegionString}"
+        app.errorString = f"You already control {app.toRegionString}"
+        app.toRegionString = ''
         app.toRegionObject = None
         app.isToLegal = False
 
     elif(app.toRegionObject not in worldMap[app.fromRegionString]):
         # print(f'app.toRegionString = {app.toRegionString}')
         # print(f'')
-        app.toRegionString = f"{app.toRegionString} is not a neighbor of {app.fromRegionString}"
+        app.errorString = f"{app.toRegionString} is not a neighbor of {app.fromRegionString}"
+        app.toRegionString = ''
         app.toRegionObject = None
         app.isToLegal = False
     else:
         app.isToLegal = True
+        app.helpStringKey1 = 1
+        app.helpStringKey2 = 4
+        app.helpStringKey3 = 5
+        app.errorString = ''
+
 
 def checkRegionsOccupied():
     for region in regionsSet:
@@ -164,7 +182,7 @@ def step3MouseClicked(app, event):
             if(app.isFrom == True and app.isTo == False):                
                 app.fromRegionString = app.selectedRegionName
                 app.fromRegionObject = app.selectedRegionObject
-                verifyFromRegion(app, "manuever")
+                verifyFromRegion(app, "maneuver")
 
             elif(app.isFrom == False and app.isTo == True and app.isFromLegal == True):
                 app.toRegionString = app.selectedRegionName
@@ -176,19 +194,24 @@ def step3MouseClicked(app, event):
 def checkStep3To(app):
     breadCrumbs = []
     if(app.toRegionObject not in app.currentPlayer.territories):
-        app.toRegionString = f"You don't control {app.toRegionString}"
+        app.errorString = f"You don't control {app.toRegionString}"
+        app.toRegionString = ''
         app.toRegionObject = None
         app.isToLegal = False
 
     elif(isThereAPath(worldMap, app.fromRegionString, app.toRegionObject, breadCrumbs, app.currentPlayer) == False): # no path
         # print(f'app.toRegionString = {app.toRegionString}')
         # print(f'')
-        app.toRegionString = f"There is not a path from {app.fromRegionString} to {app.toRegionString}"
+        app.errorString = f"There is not a path from {app.fromRegionString} to {app.toRegionString}"
+        app.toRegionString = ''
         app.toRegionObject = None
         app.isToLegal = False
     else:
         app.isToLegal = True
-
+        app.helpStringKey1 = 8
+        app.helpStringKey2 = 11
+        app.helpStringKey3 = 12
+        app.errorString = ''
 
 
 '''

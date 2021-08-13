@@ -14,6 +14,9 @@ from drawingFunctions import *
 from diceRoll import *
 from mousePressed import *
 from drawCircles import *
+from aiPlaying import *
+from helpers import *
+from drawIntroScreen import *
 
 from cmu_112_graphics import *
 
@@ -49,9 +52,17 @@ class Player(object):
         self.initialNumOfTroops = 0 # how many troops player gets at start of setup
         # self.controlContinent = False
         self.color = color
+
+        self.isAI = False
+
         Player.numberOfPlayers += 1
         # Player.colors.add(self.color)
         Player.players.append(self)
+
+    def setPlayerToAI(self):
+        self.isAI = True
+
+
 
         
 # class Card(object):
@@ -63,11 +74,141 @@ class Player(object):
 # make sure that no two players can have the same color
 player1 = Player("Player 1", "lightblue")
 player2 = Player("Player 2", "lightgreen")
+
 # player3 = Player('salmon')
 # player4 = Player('cyan')
 
-def appStarted(app):
+##########################################
+# Intro Screen Mode
+##########################################
 
+
+def clickedInsideBox(x, y, x0, y0, x1, y1):
+    if(x0<=x<=x1 and y0<=y<=y1):
+        return True
+    return False
+
+def introScreenMode_mousePressed(app, event):
+    smallBoxWidth = app.width / 5
+    smallBoxHeight = app.height / 5
+
+    ## PVP BOX Calc
+    (smallBox_x0_pvp, smallBox_y0_pvp,
+    smallBox_x1_pvp, smallBox_y1_pvp) = calcSmallBoxDimensions(smallBoxWidth,
+                                                            smallBoxHeight, 1)
+
+    ## AI BOX Calc
+    (smallBox_x0_AI, smallBox_y0_AI,
+    smallBox_x1_AI, smallBox_y1_AI) = calcSmallBoxDimensions(smallBoxWidth,
+                                                            smallBoxHeight, 3)
+
+    if(clickedInsideBox(event.x, event.y, smallBox_x0_AI,
+                        smallBox_y0_AI, smallBox_x1_AI, smallBox_y1_AI)):
+        app.aiPlaying = True  
+        player2.setPlayerToAI()    
+        # print(f"app.aiPlaying = {app.aiPlaying}")
+        app.mode = ''
+
+    elif(clickedInsideBox(event.x, event.y, smallBox_x0_pvp,
+                        smallBox_y0_pvp, smallBox_x1_pvp, smallBox_y1_pvp)):
+        app.aiPlaying = False        
+        app.mode = ''
+
+
+def calcSmallBoxDimensions(smallBoxWidth, smallBoxHeight, i):
+    smallBox_x0 = smallBoxWidth*2
+    smallBox_y0 = smallBoxHeight * i
+    smallBox_x1 = smallBox_x0 + smallBoxWidth
+    smallBox_y1 = smallBox_y0 + smallBoxHeight
+    return (smallBox_x0, smallBox_y0, smallBox_x1, smallBox_y1)
+
+def introScreenMode_timerFired(app):
+    app.timeStart += 1
+    if(app.timeStart % 15 == 0):
+        app.i = (app.i + 1) % len(app.colors)
+
+def introScreenMode_redrawAll(app, canvas):
+    color = app.colors[app.i]
+    
+    canvas.create_rectangle(0,0,app.width,app.height, fill=color)
+    
+    smallBoxWidth = app.width / 5
+    smallBoxHeight = app.height / 5
+
+    (smallBox_x0_pvp, smallBox_y0_pvp,
+    smallBox_x1_pvp, smallBox_y1_pvp) = calcSmallBoxDimensions(smallBoxWidth,
+                                                            smallBoxHeight, 1)
+
+    # FONT
+    font = 'Papyrus 70 bold'
+    # PVP
+    ######
+    canvas.create_rectangle(smallBox_x0_pvp, smallBox_y0_pvp,
+                            smallBox_x1_pvp, smallBox_y1_pvp, fill="maroon")
+
+    canvas.create_text((smallBox_x0_pvp+smallBox_x1_pvp)/2, 
+                        (smallBox_y0_pvp+smallBox_y1_pvp)/2,
+                        text="P vs. P", font=font)
+
+
+    (smallBox_x0_AI, smallBox_y0_AI,
+    smallBox_x1_AI, smallBox_y1_AI) = calcSmallBoxDimensions(smallBoxWidth,
+                                                            smallBoxHeight, 3)
+
+    ######
+    # COMPUTER
+    canvas.create_rectangle(smallBox_x0_AI, smallBox_y0_AI,
+                            smallBox_x1_AI, smallBox_y1_AI, fill="gold")
+
+    canvas.create_text((smallBox_x0_AI+smallBox_x1_AI)/2, 
+                        (smallBox_y0_AI+smallBox_y1_AI)/2, text="P vs. C", font=font)
+
+
+    drawRiskPieces(app, canvas)
+    drawTitle(app, canvas)
+
+
+def appStarted(app):
+    app.colors = ["snow", "lavender", "spring green", "tomato"]
+    app.i = 0
+    app.timeStart = 0
+    loadRiskPieces(app)
+
+    #################
+    # Help Strings
+
+    app.helpStringsDict = {
+        
+        # Setup and Step 1
+        0 : "Click on circles on map to deploy troops",
+
+        # Step 2
+        1 : "Press 'm' to maneuver. Press 'y' to yield your turn",
+        2 : "1) Press 'f' and click on a region that you want to attack from",
+        3 : "2) Press 't' and click on the region that you want to attack",
+        4 : "3) Press 'a' and press the 'Up' and 'Down' arrow keys to change the attacking troop count",
+        5 : "4) Press 'd' and press the 'Up' and 'Down' arrow keys to change the defending troop count",
+        6 : "5) Press 'Space' to roll the dice",
+        7 : "6) Press 'r' to restart your attack",
+
+        # Step 3
+        8 : "Press 'y' to yield your turn",
+        9 : "7) Press 'f' and click on a region that you want to maneuver troops from",
+        10 : "8) Press 't' and click on a region that you want to maneuver troops to",
+        11 : "9) Press 'Enter' then use the 'Up' and 'Down' arrow keys to change troops maneuvered",
+        12 : "10) Press 'c' to confirm your choice and give the turn to the other player"
+    }
+    app.helpStringKey1 = 0
+    app.helpStringKey2 = -1
+    app.helpStringKey3 = -1
+    #################
+
+    #################
+    # Error Strings
+    app.errorString = ''
+    #################
+
+    app.mode = 'introScreenMode'
     app.gameEnded = False
     app.winner = None
     app.isTie = False
@@ -83,7 +224,7 @@ def appStarted(app):
 
     for player in Player.players:
         if (app.numOfPlayers <= 3):
-            troops = 22 # should be 35 -> for testing purposes, it's 15
+            troops = 35
         elif (app.numOfPlayers == 4):
             troops = 30
         else:
@@ -144,16 +285,14 @@ def appStarted(app):
 
 
     #############################
-    # STEP 3 -> Manuever
-    app.troopsManuevered = 0
+    # STEP 3 -> Maneuver
+    app.troopsManeuvered = 0
     app.troopsToMoveWidth = 1
     #############################
 
     # bottome right corner of map
     app.mapBottomY = 538
     app.mapRightX = 806
-
-
 
     # code to get size of image
     # https://newbedev.com/python-get-width-and-height-of-image-tkinter-code-example
@@ -235,7 +374,7 @@ def resetStep2(app):
 
 
 def resetStep3(app):
-    app.troopsManuevered = 0
+    app.troopsManevered = 0
     app.troopsToMoveWidth = 1
 
 def nextPlayer(app):
@@ -243,9 +382,22 @@ def nextPlayer(app):
     resetStep2(app)
     resetStep3(app)
 
+    app.helpStringKey1 = 0
+    app.helpStringKey2 = -1
+    app.helpStringKey3 = -1
+
+
     app.currentIndex = (app.currentIndex + 1) % len(app.turns)
     app.currentPlayer = app.turns[app.currentIndex]
+
     app.currentPlayer.troopPlaceCount = calculateTroopPlaceCount(app, app.currentPlayer.territories)
+    # app.currentPlayer.troopPlaceCount = 0
+
+    if(app.currentPlayer.isAI):
+        # aiPlay
+        aiPlay(app)
+        if (not app.gameEnded):
+            nextPlayer(app)
 
 def keyPressed(app, event):   
     ###################
@@ -258,6 +410,12 @@ def keyPressed(app, event):
         return
 
     if(event.key == "m" and app.finishedRequired):
+        
+        app.helpStringKey1 = 8
+        app.helpStringKey2 = 9
+        app.helpStringKey3 = 10
+
+        
         app.setup = False 
         app.step1Now = False
         app.step2Now = False
@@ -317,6 +475,10 @@ def keyPressed(app, event):
 
             app.rolledCount = 0
 
+            app.helpStringKey1 = 1
+            app.helpStringKey2 = 2
+            app.helpStringKey3 = 3
+
         ###########################
         # makes sure that from and to regions are legal
         elif(event.key == 'a' and 
@@ -348,6 +510,11 @@ def keyPressed(app, event):
              app.isFromLegal == True and 
              app.isToLegal == True and 
              app.substate_setting_A_Troops == True):
+
+            if(app.aiPlaying):
+                app.defendingTroopCount = aiDefend(app)
+
+
             app.width_A = 1
             app.width_D = 3
 
@@ -355,6 +522,12 @@ def keyPressed(app, event):
             app.isTo = False
 
             app.setDefend = True
+
+            app.helpStringKey1 = 1
+            app.helpStringKey2 = 6
+            app.helpStringKey3 = 7
+
+
 
             #both are false b/c you are no longer setting the regions
 
@@ -376,7 +549,7 @@ def keyPressed(app, event):
                 app.attackingTroopCount += 1
 
             elif(app.substate_setting_D_Troops == True and 
-                app.defendingTroopCount < defendingMax):
+                app.defendingTroopCount < defendingMax and not app.aiPlaying):
 
                 app.defendingTroopCount += 1
 
@@ -386,7 +559,7 @@ def keyPressed(app, event):
                 app.attackingTroopCount -= 1
 
             elif(app.substate_setting_D_Troops == True and
-                 app.defendingTroopCount > 1):
+                 app.defendingTroopCount > 1 and not app.aiPlaying):
                   app.defendingTroopCount -= 1
         ###########################
         elif(event.key == 'Space' and (app.setRegions) and
@@ -401,7 +574,7 @@ def keyPressed(app, event):
             app.toRegionObject.troopCount -= app.diedDefending
 
             if(app.toRegionObject.troopCount < 1):
-                conquer(app.toRegionObject, app.fromRegionObject,
+                conquer(app, app.toRegionObject, app.fromRegionObject,
                         app.attackingTroopCount, app.diedAttacking)
 
     # STEP 3 stuff
@@ -416,6 +589,7 @@ def keyPressed(app, event):
             app.isFrom = False
             app.isTo = True
 
+
         if(app.isToLegal and app.isFromLegal and
             app.isFromLegal == True and app.isToLegal == True):
             if(event.key == "Enter"):
@@ -426,67 +600,17 @@ def keyPressed(app, event):
             if(event.key == "Up"):
                 movingMax = app.fromRegionObject.troopCount - 1
 
-                if(app.troopsManuevered < movingMax):                
-                    app.troopsManuevered += 1
+                if(app.troopsManeuvered < movingMax):                
+                    app.troopsManeuvered += 1
 
             elif(event.key == "Down"):
-                if(app.troopsManuevered > 1):
-                    app.troopsManuevered -= 1
+                if(app.troopsManeuvered > 1):
+                    app.troopsManeuvered -= 1
 
             elif(event.key == "c"): # confirm move
-                app.fromRegionObject.troopCount -= app.troopsManuevered
-                app.toRegionObject.troopCount += app.troopsManuevered
+                app.fromRegionObject.troopCount -= app.troopsManeuvered
+                app.toRegionObject.troopCount += app.troopsManeuvered
                 nextPlayer(app)
-
-def endGame(app):
-    # drawBlankScreen and show who won or tie
-    app.gameEnded = True
-    app.mode = 'gameEndedMode'
-    listOfNumOfRegions = []
-    for player in app.turns:
-        listOfNumOfRegions.append(len(player.territories))
-    
-    for i in range(len(listOfNumOfRegions) - 1):
-        if(listOfNumOfRegions[i] != listOfNumOfRegions[i+1]):
-            app.isTie = False
-        else:
-            app.isTie = True
-
-    if(app.isTie == False):
-        bestWinner = None
-        bestWinnerTerritoryCount = -1
-        for player in app.turns:
-            if(len(player.territories) > bestWinnerTerritoryCount):
-                bestWinner = player
-                bestWinnerTerritoryCount = len(player.territories)
-        app.winner = bestWinner
-
-def checkGameEnd(currentPlayer):
-    if(len(currentPlayer.territories) == len(regionsSet)):
-        app.winner = currentPlayer
-        return True
-    else:
-        return False
-
-def conquer(toRegionObject, fromRegionObject, attackCount, diedAttacking):
-    conquered = toRegionObject.troopGeneral
-    conquerer = fromRegionObject.troopGeneral
-
-    toRegionObject.troopGeneral = fromRegionObject.troopGeneral
-    toRegionObject.occupied = True
-    toRegionObject.color = fromRegionObject.color
-    
-    # removes the region from conqueredPlayer's set of territories
-    conquered.territories.remove(toRegionObject) 
-    # removes the region from conqueredPlayer's set of territories
-    conquerer.territories.add(toRegionObject) 
-
-    toRegionObject.troopCount = (attackCount - diedAttacking)
-    fromRegionObject.troopCount -= toRegionObject.troopCount
-
-    if(checkGameEnd(conquerer)):
-        endGame()
-
 
 # calculates the max num of troops player can attack with 
 def checkMaxTroopsToAttack(app):
