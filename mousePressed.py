@@ -2,7 +2,7 @@
 # the step that the game is in (attacking vs placing troops)
 
 from worldMap import *
-from aiPlaying import *
+from aiPlayingRandom import *
 
 def mousePressed(app, event):
     # bottom right corner of map
@@ -226,10 +226,10 @@ def isThereAPath(worldMap, node, target, breadCrumbs, currentPlayer):
     # breadCrumbs.add(node)
     breadCrumbs.append(node)
     #   print(breadCrumbs)
-    print(f"target.name: {target.name}")
-    print(f"node: {node}")
-    print(f"breadCrumbs: {breadCrumbs}")
-    # check 1
+    # print(f"target.name: {target.name}")
+    # print(f"node: {node}")
+    # print(f"breadCrumbs: {breadCrumbs}")
+    # # check 1
     if(target in worldMap[node]):
         # breadCrumbs.append(target.name)
         return True

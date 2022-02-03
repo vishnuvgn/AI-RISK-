@@ -27,13 +27,13 @@ def drawHelp(app, canvas):
     y0 = app.mapHeight+10
     x1 = app.mapWidth
     y1 = ((app.mapHeight+10) + ((app.height-10) - (app.mapHeight+10))/2) + 20
-    canvas.create_rectangle(x0, y0, x1, y1)
+    canvas.create_rectangle(x0, y0, x1, y1, outline="black")
 
 
     help1 = app.helpStringsDict[app.helpStringKey1]
     font="Papyrus 16"
     canvas.create_text((x0+x1)/2, ((y0+y1)/2)-30,
-                    text=help1, font=font)
+                    text=help1, font=font,fill='black')
 
 
     help2 = ''
@@ -41,14 +41,14 @@ def drawHelp(app, canvas):
         help2 = app.helpStringsDict[app.helpStringKey2]
 
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
-                    text=help2, font=font)
+                    text=help2, font=font, fill='black')
     
     help3 = ''
     if(app.helpStringKey3 > -1):
         help3 = app.helpStringsDict[app.helpStringKey3]
 
     canvas.create_text((x0+x1)/2, ((y0+y1)/2)+30,
-                    text=help3, font=font)
+                    text=help3, font=font, fill='black')
 
 
 def drawError(app, canvas):
@@ -204,9 +204,9 @@ def drawTroopsBox(app, canvas, troopCount, sideBarx0,sideBary0,
     # countBoxWidth = x1-x0
 
     canvas.create_rectangle(x0,y0,x1,y1)
-    canvas.create_text((x1+x0)/2,(y1+y0)/2, text=troopCount)
+    canvas.create_text((x1+x0)/2,(y1+y0)/2, text=troopCount, fill="black")
     canvas.create_text((x1+x0)/2,(y1+y0)/2+countBoxHeight,
-                        text=message)
+                        text=message,fill="black")
 
 
 
@@ -229,9 +229,9 @@ def drawStep2(app, canvas):
     step2x1 = sideBarx1
     step2y1 = sideBary1
 
-    canvas.create_rectangle(step2x0,step2y0,step2x1,step2y1, width=2)
+    canvas.create_rectangle(step2x0,step2y0,step2x1,step2y1, width=2, outline='black')
     canvas.create_text((step2x0 + step2x1)/2, step2y0+10,
-                         text="ATTACK")
+                         text="ATTACK", fill='black')
     # drawSkipButton(app, canvas)
     drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1)
     drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1)
@@ -284,9 +284,9 @@ def drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1):
     toText = f'TO: {app.toRegionString}' 
 
 
-    canvas.create_rectangle(x0From, y0From, x1From, y1From, width=fromWidth)
+    canvas.create_rectangle(x0From, y0From, x1From, y1From, width=fromWidth, outline="black")
     canvas.create_text((x1From+x0From)/2,(y1From+y0From)/2,
-                        text=fromText)
+                        text=fromText, fill='black')
 
     x0To = step2x1 - (step2BoxWidth/2)
     y0To = (step2BoxHeight/10) + step2y0
@@ -294,9 +294,9 @@ def drawFromTo(app, canvas, step2x0, step2y0, step2x1, step2y1):
     y1To = y0From + (step2BoxHeight/10)
 
     
-    canvas.create_rectangle(x0To, y0To, x1To, y1To, width=toWidth)
+    canvas.create_rectangle(x0To, y0To, x1To, y1To, width=toWidth, outline="black")
     canvas.create_text((x1To+x0To)/2,(y1To+y0To)/2,
-                        text=toText)
+                        text=toText,fill='black')
 
 
 def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
@@ -312,12 +312,12 @@ def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
     y1Attacking = y0Attacking + (step2BoxHeight/10)
 
     canvas.create_rectangle(x0Attacking, y0Attacking, x1Attacking, y1Attacking,
-                            width=app.width_A)
+                            width=app.width_A, outline='black')
     
     attackingTroopMessage = "Attacking Troops:" 
     # text for attacking troops
     canvas.create_text((x1Attacking+x0Attacking)/2, (y1Attacking+y0Attacking)/2,
-                        text=attackingTroopMessage)
+                        text=attackingTroopMessage, fill='black')
 
 
     x0Defending = step2x1 - (step2BoxWidth/2)
@@ -326,12 +326,12 @@ def drawChooseTroopCount(app, canvas, step2x0, step2y0, step2x1, step2y1):
     y1Defending = y0Defending + (step2BoxHeight/10)
 
     canvas.create_rectangle(x0Defending, y0Defending, x1Defending, y1Defending,
-                            width=app.width_D)
+                            width=app.width_D, outline="black")
 
     defendingTroopMessage = "Defending Troops:" 
     # text for defending troops
     canvas.create_text((x1Defending+x0Defending)/2, (y1Defending+y0Defending)/2,
-                        text=defendingTroopMessage)
+                        text=defendingTroopMessage, fill='black')
 
 
     attackingTroopNum = app.attackingTroopCount
@@ -360,7 +360,7 @@ def drawTroopCountSquare(app, canvas, A_D_x0, A_D_y0, A_D_x1, A_D_y1,A_D_troopNu
 
     canvas.create_text((x1CountSquare+x0CountSquare)/2,
                         (y1CountSquare + y0CountSquare)/2,
-                        text=A_D_troopNum)
+                        text=A_D_troopNum, fill="black")
 
 
 def drawRollButton(app, canvas):
@@ -382,8 +382,8 @@ def drawRollButton(app, canvas):
     x1 = x0 + (sideBarWidth / 5) 
     y1 = y0 + 30
 
-    canvas.create_rectangle(x0,y0,x1,y1)
-    canvas.create_text((x0+x1)/2, (y0+y1)/2, text="ROLL")
+    canvas.create_rectangle(x0,y0,x1,y1, outline ='black')
+    canvas.create_text((x0+x1)/2, (y0+y1)/2, text="ROLL", fill='black')
     
 # fn that draws the dice and takes in the 
 # attackingDice list and the defendingDice list    
@@ -406,14 +406,14 @@ def drawDice(app, canvas):
     A_x1 = A_x0 + (sideBarWidth / 7) 
     A_y1 = A_y0 + 30
 
-    canvas.create_text((A_x1+A_x0)/2, (A_y0+A_y1)/2, text="ATTACKER")
+    canvas.create_text((A_x1+A_x0)/2, (A_y0+A_y1)/2, text="ATTACKER",fill='black')
 
     D_x0 = sideBarx0 + (5*sideBarWidth / 7)
     D_y0 = (3*step2Height/5) + 30
     D_x1 = D_x0 + (sideBarWidth / 7) 
     D_y1 = D_y0 + 30
 
-    canvas.create_text((D_x1+D_x0)/2, (D_y0+D_y1)/2, text="DEFENDER")
+    canvas.create_text((D_x1+D_x0)/2, (D_y0+D_y1)/2, text="DEFENDER", fill='black')
 
     diceLength = 50 # dice height and width is 25
 
@@ -435,7 +435,7 @@ def drawDice(app, canvas):
                                 attackDice_x1, attackDice_y1)
         canvas.create_text((attackDice_x0+attackDice_x1)/2,
                            (attackDice_y1+attackDice_y0)/2,
-                           text=f'{app.attackingDice[i]}')
+                           text=f'{app.attackingDice[i]}', fill="black")
 
     for i in range(app.defendingTroopCount):
         defenceDice_y0 += diceLength
@@ -444,7 +444,7 @@ def drawDice(app, canvas):
                                 defenceDice_x1, defenceDice_y1)                                
         canvas.create_text((defenceDice_x0+defenceDice_x1)/2,
                            (defenceDice_y0+defenceDice_y1)/2,
-                           text=f'{app.defendingDice[i]}')
+                           text=f'{app.defendingDice[i]}', fill="black")
 
 
 def drawBattleResults(app, canvas):
@@ -474,9 +474,9 @@ def drawBattleResults(app, canvas):
     
     font = "Papyrus 24 bold"
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
-                        text=attackerMessage, anchor="s", font=font)
+                        text=attackerMessage, anchor="s", font=font, fill='black')
     canvas.create_text((x0+x1)/2, (y0+y1)/2,
-                        text=defenderMessage, anchor="n", font=font)
+                        text=defenderMessage, anchor="n", font=font, fill='black')
 
 
 ####################################################
@@ -499,9 +499,9 @@ def drawStep3(app, canvas):
     step3x1 = sideBarx1
     step3y1 = sideBary1
 
-    canvas.create_rectangle(step3x0,step3y0,step3x1,step3y1, width=2)
+    canvas.create_rectangle(step3x0,step3y0,step3x1,step3y1, width=2, outline="black")
     canvas.create_text((step3x0 + step3x1)/2, step3y0+10,
-                         text="MANEUVER")
+                         text="MANEUVER", fill='black')
 
     drawFromTo(app, canvas, step3x0, step3y0, step3x1, step3y1)
     drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1)
@@ -516,10 +516,10 @@ def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
     x1Moving = step3BoxWidth + x0Moving
     y1Moving = y0Moving + (step3BoxHeight/10)
 
-    canvas.create_rectangle(x0Moving, y0Moving, x1Moving, y1Moving, width=app.troopsToMoveWidth)
+    canvas.create_rectangle(x0Moving, y0Moving, x1Moving, y1Moving, width=app.troopsToMoveWidth, outline="black")
 
     canvas.create_text((x1Moving + x0Moving)/2, (y1Moving + y0Moving)/2, 
-                        text="Troops to Move:")
+                        text="Troops to Move:", fill='black')
 
     movedTroopsBoxLen = 45
 
@@ -531,11 +531,11 @@ def drawChooseTroopsToMove(app, canvas, step3x0, step3y0, step3x1, step3y1):
     movedTroops_y1 = (y1Moving+y0Moving)/2 + movedTroopsBoxLen/2
 
     canvas.create_rectangle(movedTroops_x0, movedTroops_y0,
-                            movedTroops_x1, movedTroops_y1)
+                            movedTroops_x1, movedTroops_y1, outline="black")
 
     canvas.create_text((movedTroops_x0+movedTroops_x1)/2,
                        (movedTroops_y0+movedTroops_y1)/2,
-                        text=troopsManeuvered)
+                        text=troopsManeuvered, fill='black')
 
 ####################################################
 
@@ -559,7 +559,7 @@ def drawGoodbyeMessage(app, canvas):
 
     canvas.create_text(((2*app.width/5)+50+(3*app.width/5)-50)/2,
                       ((((3*app.height/5)+30)+((4*app.height/5)-30))/2),
-                         text="Good Game! Press Ctrl Q to quit", font="Papyrus 40 bold")
+                         text="Good Game! Press Ctrl Q to quit", font="Papyrus 40 bold", fill='black')
 
 
 

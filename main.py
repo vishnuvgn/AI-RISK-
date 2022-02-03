@@ -16,7 +16,10 @@ from drawingFunctions import *
 from diceRoll import *
 from mousePressed import *
 from drawCircles import *
-from aiPlaying import *
+# from aiPlayingRandom import *
+# from aiBrainAttack import *
+# from aiBrainPlace import *
+from aiBrainManeuver import *
 from helpers import *
 from drawIntroScreen import *
 
@@ -54,8 +57,8 @@ class Player(object):
 player1 = Player("Player 1", "lightblue")
 player2 = Player("Player 2", "lightgreen")
 
-# player3 = Player('salmon')
-# player4 = Player('cyan')
+# player3 = Player("player3", 'salmon')
+# player4 = Player("player4",'cyan')
 
 ##########################################
 # Intro Screen Mode
@@ -350,7 +353,7 @@ def resetStep2(app):
 
 
 def resetStep3(app):
-    app.troopsManevered = 0
+    app.troopsManeuvered = 0
     app.troopsToMoveWidth = 1
 
 def nextPlayer(app):
@@ -516,7 +519,7 @@ def keyPressed(app, event):
             app.substate_rolling = True
 
 
-        elif(event.key == "Up"):
+        elif(event.key == 'Up'):
             attackingMax = checkMaxTroopsToAttack(app)
             defendingMax = checkMaxTroopsToDefend(app)
             if(app.substate_setting_A_Troops == True and 
@@ -529,7 +532,7 @@ def keyPressed(app, event):
 
                 app.defendingTroopCount += 1
 
-        elif(event.key == "Down"):
+        elif(event.key == 'Down'):
             if(app.substate_setting_A_Troops == True and 
                app.attackingTroopCount > 1):
                 app.attackingTroopCount -= 1
